@@ -1,0 +1,177 @@
+@import './styles/tokens.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--page);
+  color: var(--ink);
+  font-family: theme(fontFamily.sans);
+  line-height: 1.6;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+* {
+  border-color: var(--hairline);
+}
+
+*:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0ms !important;
+    animation-duration: 0ms !important;
+  }
+}
+
+.field {
+  @apply w-full border-0 border-b border-hairline-strong bg-transparent px-0 py-2 text-sm text-ink outline-none transition placeholder:text-ink-faint focus:border-b-2 focus:border-ink;
+  border-radius: 0;
+}
+
+.btn {
+  @apply inline-flex h-10 items-center justify-center gap-2 border border-hairline-strong bg-transparent px-4 text-sm font-medium text-ink transition disabled:cursor-not-allowed disabled:border-hairline disabled:text-ink-faint;
+  border-radius: var(--radius);
+}
+
+.btn-primary {
+  @apply btn border-2 border-ink hover:bg-ink hover:text-page;
+}
+
+.btn-secondary {
+  @apply btn hover:bg-ink hover:text-page;
+}
+
+.btn-danger {
+  @apply btn border-danger text-danger hover:bg-danger hover:text-page;
+}
+
+.panel {
+  @apply border border-hairline bg-surface;
+  border-radius: var(--radius);
+}
+
+.surface {
+  @apply border border-hairline bg-surface;
+  border-radius: var(--radius);
+}
+
+.section-title {
+  @apply font-display text-xs font-normal uppercase tracking-[0.14em] text-ink-faint;
+}
+
+.metric {
+  @apply border border-hairline bg-raised px-3 py-2;
+  border-radius: var(--radius);
+}
+
+.prose-certamen {
+  @apply max-w-[68ch] text-sm leading-relaxed text-ink;
+}
+
+.prose-certamen h2 {
+  @apply mt-4 text-base font-medium text-ink;
+}
+
+.prose-certamen h3 {
+  @apply mt-3 text-sm font-medium text-ink;
+}
+
+.prose-certamen ul {
+  @apply list-disc pl-5;
+}
+
+.prose-certamen a {
+  @apply text-ink underline decoration-hairline-strong underline-offset-4;
+}
+
+.baseline-grid {
+  background-image:
+    repeating-linear-gradient(to right, var(--grid) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(to bottom, var(--grid) 0 1px, transparent 1px 8px);
+}
+
+.numeric {
+  @apply font-mono;
+  font-variant-numeric: tabular-nums;
+}
+
+.participant-chip {
+  @apply inline-block h-3 w-3 border border-ink;
+}
+
+.participant-chip[data-slot='0'],
+.participant-bar[data-slot='0'] {
+  background: var(--p-1);
+}
+
+.participant-chip[data-slot='1'],
+.participant-bar[data-slot='1'] {
+  background: var(--p-2);
+}
+
+.participant-chip[data-slot='2'],
+.participant-bar[data-slot='2'] {
+  background: var(--p-3);
+}
+
+.participant-chip[data-slot='3'],
+.participant-bar[data-slot='3'] {
+  background: var(--p-4);
+}
+
+.participant-chip[data-slot='4'],
+.participant-bar[data-slot='4'],
+.participant-chip[data-slot='5'],
+.participant-bar[data-slot='5'],
+.participant-chip[data-slot='6'],
+.participant-bar[data-slot='6'],
+.participant-chip[data-slot='7'],
+.participant-bar[data-slot='7'] {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 3px, rgb(255 255 255 / 0.28) 3px 5px),
+    var(--p-1);
+}
+
+.status-square {
+  @apply inline-block h-2 w-2 border border-ink align-middle;
+}
+
+.status-square[data-state='done'] {
+  background: var(--ink);
+}
+
+.status-square[data-state='streaming'] {
+  background: transparent;
+  border-width: 2px;
+}
+
+.status-square[data-state='waiting'] {
+  background: transparent;
+  border-style: dashed;
+}
+
+.status-square[data-state='failed'] {
+  background:
+    linear-gradient(45deg, transparent 42%, var(--ink) 42% 58%, transparent 58%),
+    linear-gradient(-45deg, transparent 42%, var(--ink) 42% 58%, transparent 58%);
+}

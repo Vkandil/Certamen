@@ -1,0 +1,12 @@
+{
+  "name": "Certamen",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:22",
+  "forwardPorts": [5273],
+  "portsAttributes": {
+    "5273": {
+      "label": "Certamen",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "npm install"
+}

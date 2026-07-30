@@ -1,0 +1,53 @@
+name: Feature request
+description: Suggest an improvement for Certamen.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement. Certamen aims to stay local-first, inspectable, and small.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What user problem would this solve?
+      placeholder: I want to...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe the feature or behavior you would like.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - UI / UX
+        - Model selection
+        - Protocol / prompts
+        - Exports / permalinks
+        - Privacy / security
+        - Documentation
+        - Tests / maintenance
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What other approaches did you consider?
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Project constraints
+      options:
+        - label: This can work without a Certamen backend.
+        - label: This does not require telemetry or hosted user accounts.
+        - label: This keeps user data local unless explicitly exported or sent to selected model providers.

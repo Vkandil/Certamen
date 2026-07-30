@@ -1,0 +1,68 @@
+name: Bug report
+description: Report something broken or unexpectedly risky.
+title: "bug: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please avoid including API keys, private prompts, or sensitive run data.
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What happened?
+      placeholder: Certamen did X, but I expected Y.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give the smallest set of steps that reproduces the issue.
+      placeholder: |
+        1. Open the app
+        2. Select models...
+        3. Start a run...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      placeholder: What should have happened?
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      placeholder: What happened instead?
+    validations:
+      required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser
+      placeholder: Chrome 126, Firefox 128, Safari 18...
+  - type: input
+    id: version
+    attributes:
+      label: Certamen version or commit
+      placeholder: v0.1.0 or commit SHA
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console output or screenshots
+      description: Redact API keys and private prompt content before attaching logs.
+      render: text
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I removed API keys and sensitive data from this report.
+          required: true
+        - label: I searched existing issues before opening this one.
+          required: true
