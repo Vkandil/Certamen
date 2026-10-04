@@ -37,6 +37,14 @@
   </p>
 </div>
 
+<p align="center">
+  <a href="docs/media/certamen-promo.mp4">
+    <img src="docs/media/certamen-promo-poster.jpg" alt="Watch the Certamen film (0:47, sound on)" width="100%" />
+  </a>
+  <br />
+  <sub><a href="docs/media/certamen-promo.mp4"><b>▶ Watch the 47-second film</b></a> (sound on). Made entirely in code; see <a href="video/">video/</a>.</sub>
+</p>
+
 ---
 
 Certamen is a static web app for questions where one model is not enough. It runs several LLMs through OpenRouter, asks them to review anonymized peer answers, then uses an arbiter model to produce a final synthesis with consensus, dissensus, recommendations, and points to verify.
