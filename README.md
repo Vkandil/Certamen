@@ -38,11 +38,13 @@
 </div>
 
 <p align="center">
-  <a href="docs/media/certamen-promo.mp4">
+  <a href="https://github.com/user-attachments/assets/036586c6-b53a-4742-953f-2f36f5f5ea6b
+">
     <img src="docs/media/certamen-promo-poster.jpg" alt="Watch the Certamen film (0:47, sound on)" width="100%" />
   </a>
   <br />
-  <sub><a href="docs/media/certamen-promo.mp4"><b>▶ Watch the 47-second film</b></a> (sound on). Made entirely in code; see <a href="video/">video/</a>.</sub>
+  <sub><a href="https://github.com/user-attachments/assets/036586c6-b53a-4742-953f-2f36f5f5ea6b
+"><b>▶ Watch the 47-second film</b></a> (sound on). Made entirely in code; see <a href="video/">video/</a>.</sub>
 </p>
 
 ---
@@ -205,3 +207,7 @@ Any change to `src/domain/prompts.ts` should increment `PROMPT_VERSION` and expl
 ## License
 
 MIT
+
+
+
+
