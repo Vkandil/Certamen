@@ -1,0 +1,61 @@
+@font-face { font-family: 'Inter'; font-weight: 500; src: url('/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 600; src: url('/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 700; src: url('/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 800; src: url('/node_modules/@fontsource/inter/files/inter-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 900; src: url('/node_modules/@fontsource/inter/files/inter-latin-900-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 400; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 600; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 600; font-style: italic; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-600-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Cinzel'; font-weight: 700; src: url('/node_modules/@fontsource/cinzel/files/cinzel-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 400; src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 600; src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2') format('woff2'); }
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1080px; overflow: hidden; background: #15140F; }
+body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+#stage { position: absolute; inset: 0; width: 1080px; height: 1080px; overflow: hidden; background: #15140F; }
+.abs { position: absolute; left: 0; top: 0; }
+.layer { position: absolute; left: 0; top: 0; width: 1080px; height: 1080px; transform-origin: 0 0; }
+.fx { position: absolute; inset: 0; pointer-events: none; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.serif { font-family: 'Gelasio', serif; }
+svg { overflow: visible; }
+
+/* chat windows */
+.win { position: absolute; width: 440px; height: 270px; background: #26231A; border: 2px solid #4C463A; border-radius: 3px; color: #EDE6D6; overflow: hidden; }
+.win .hd { height: 58px; display: flex; align-items: center; gap: 12px; padding: 0 18px; border-bottom: 1px solid #35312A; }
+.win .hd svg { width: 30px; height: 30px; }
+.win .hd .nm { font-weight: 700; font-size: 24px; }
+.win .hd .ctl { margin-left: auto; display: flex; gap: 7px; }
+.win .hd .ctl i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid #4C463A; display: block; }
+.win .dots { position: absolute; left: 26px; top: 130px; display: flex; gap: 10px; }
+.win .dots i { width: 15px; height: 15px; border-radius: 50%; background: #A79E8B; display: block; }
+.win .ans { position: absolute; left: 22px; top: 76px; transform-origin: 0 50%; white-space: nowrap; }
+.win .ans b { display: inline-block; font-weight: 900; font-size: 112px; line-height: 1; letter-spacing: -0.04em; }
+.win .ans u { text-decoration: none; font-weight: 700; font-size: 30px; color: #A79E8B; margin-left: 6px; }
+.win .ans span { display: block; font-size: 21px; color: #A79E8B; margin-top: 10px; font-weight: 500; }
+.win .dim { position: absolute; inset: 0; background: #15140F; }
+
+/* swarm price tags */
+.tag { position: absolute; padding: 12px 26px 12px 40px; background: #EDE6D6; color: #15140F; font-weight: 900; font-size: 40px; white-space: nowrap; clip-path: polygon(18px 0, 100% 0, 100% 100%, 18px 100%, 0 50%); }
+.tag::before { content: ''; position: absolute; left: 20px; top: 50%; width: 10px; height: 10px; margin-top: -5px; border-radius: 50%; background: #15140F; }
+.tag.hot { background: #FF3D2E; color: #fff; }
+
+/* arena cards */
+.card { position: absolute; width: 230px; height: 150px; transform-style: preserve-3d; }
+.card .face { position: absolute; inset: 0; backface-visibility: hidden; background: #FBF7EF; border: 2px solid #1B1A17; border-radius: 3px; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 14px; }
+.card .front svg { width: 46px; height: 46px; }
+.card .front .nm { font-family: 'Gelasio', serif; font-size: 32px; color: #1B1A17; }
+.card .back { transform: rotateY(180deg); background: #FFFDF8; justify-content: flex-start; padding-left: 18px; }
+.card .back .helm { width: 92px; height: 120px; -webkit-mask: url('/x-cut/assets/helmet.png') center / contain no-repeat; mask: url('/x-cut/assets/helmet.png') center / contain no-repeat; }
+.card .back .lt { font-family: 'Gelasio', serif; font-size: 84px; line-height: 1; margin-left: 8px; }
+.card .back .band { position: absolute; left: 0; right: 0; top: 0; height: 9px; }
+.bubble { position: absolute; padding: 12px 18px; background: #FFFDF8; border: 2px solid #1B1A17; font-size: 25px; font-weight: 700; color: #1B1A17; white-space: nowrap; border-radius: 3px; }
+
+/* captions */
+.chunk { position: absolute; left: 0; width: 1080px; top: 900px; height: 96px; display: flex; justify-content: center; align-items: center; }
+.chunk .row { position: relative; display: flex; align-items: center; }
+.chunk .hl { position: absolute; top: 50%; height: 84px; margin-top: -42px; border-radius: 4px; }
+.chunk .w { position: relative; display: inline-block; padding: 0 12px; font-weight: 800; font-size: 60px; line-height: 84px; white-space: nowrap; letter-spacing: -0.01em; }
+.chunk .w.em { font-family: 'Gelasio', serif; font-style: italic; font-weight: 600; font-size: 64px; letter-spacing: 0; }
+.chunk .w.shout { font-weight: 900; }

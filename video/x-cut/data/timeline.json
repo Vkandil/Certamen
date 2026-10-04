@@ -1,0 +1,702 @@
+{
+ "duration": 31.5,
+ "main": [
+  {
+   "logo": "openai",
+   "name": "ChatGPT",
+   "say": "$9",
+   "unit": "/mo",
+   "sub": "Go cheap. Win volume.",
+   "focus": 3.25,
+   "slam": 4.05
+  },
+  {
+   "logo": "claude",
+   "name": "Claude",
+   "say": "$99",
+   "unit": "/mo",
+   "sub": "Charge for the value.",
+   "focus": 5.08,
+   "slam": 5.75
+  },
+  {
+   "logo": "gemini",
+   "name": "Gemini",
+   "say": "IT DEPENDS.",
+   "unit": "",
+   "sub": "On market, ICP, churn…",
+   "focus": 6.8,
+   "slam": 7.82,
+   "small": true
+  },
+  {
+   "logo": "grok",
+   "name": "Grok",
+   "say": "FREE.",
+   "unit": "",
+   "sub": "Monetize later.",
+   "focus": 8.92,
+   "slam": 9.62
+  }
+ ],
+ "reprise": [
+  30.1,
+  30.32,
+  30.46,
+  30.700000000000003
+ ],
+ "swarm": [
+  {
+   "kind": "tag",
+   "t": 10.53,
+   "text": "$0"
+  },
+  {
+   "kind": "win",
+   "t": 10.857,
+   "logo": "meta",
+   "name": "Meta AI",
+   "say": "$19"
+  },
+  {
+   "kind": "tag",
+   "t": 11.068,
+   "text": "$5"
+  },
+  {
+   "kind": "tag",
+   "t": 11.25,
+   "text": "$19"
+  },
+  {
+   "kind": "win",
+   "t": 11.416,
+   "logo": "mistral",
+   "name": "Mistral",
+   "say": "$49/seat"
+  },
+  {
+   "kind": "tag",
+   "t": 11.571,
+   "text": "$29"
+  },
+  {
+   "kind": "tag",
+   "t": 11.717,
+   "text": "$49"
+  },
+  {
+   "kind": "win",
+   "t": 11.856,
+   "logo": "deepseek",
+   "name": "DeepSeek",
+   "say": "$0.99"
+  },
+  {
+   "kind": "tag",
+   "t": 11.99,
+   "text": "$79"
+  },
+  {
+   "kind": "tag",
+   "t": 12.119,
+   "text": "$149"
+  },
+  {
+   "kind": "win",
+   "t": 12.244,
+   "logo": "qwen",
+   "name": "Qwen",
+   "say": "$299/yr"
+  },
+  {
+   "kind": "tag",
+   "t": 12.366,
+   "text": "$999"
+  },
+  {
+   "kind": "tag",
+   "t": 12.485,
+   "text": "PER SEAT"
+  },
+  {
+   "kind": "win",
+   "t": 12.601,
+   "logo": "meta",
+   "name": "Meta AI",
+   "say": "USAGE-BASED"
+  },
+  {
+   "kind": "tag",
+   "t": 12.714,
+   "text": "USAGE-BASED"
+  },
+  {
+   "kind": "tag",
+   "t": 12.826,
+   "text": "FREEMIUM"
+  },
+  {
+   "kind": "win",
+   "t": 12.935,
+   "logo": "mistral",
+   "name": "Mistral",
+   "say": "LIFETIME DEAL"
+  },
+  {
+   "kind": "tag",
+   "t": 13.042,
+   "text": "TRIAL?"
+  },
+  {
+   "kind": "tag",
+   "t": 13.148,
+   "text": "ANNUAL −20%"
+  },
+  {
+   "kind": "win",
+   "t": 13.251,
+   "logo": "deepseek",
+   "name": "DeepSeek",
+   "say": "$499"
+  },
+  {
+   "kind": "tag",
+   "t": 13.354,
+   "text": "PAY WHAT YOU WANT"
+  },
+  {
+   "kind": "tag",
+   "t": 13.455,
+   "text": "$9.99"
+  },
+  {
+   "kind": "win",
+   "t": 13.554,
+   "logo": "qwen",
+   "name": "Qwen",
+   "say": "FREEMIUM"
+  },
+  {
+   "kind": "tag",
+   "t": 13.653,
+   "text": "$12"
+  }
+ ],
+ "sfx": [
+  {
+   "t": 0,
+   "type": "impact",
+   "gain": 1
+  },
+  {
+   "t": 0,
+   "type": "kaching",
+   "gain": 0.5
+  },
+  {
+   "t": 0.18,
+   "type": "slam",
+   "gain": 0.6
+  },
+  {
+   "t": 0.55,
+   "type": "rewind",
+   "gain": 0.9
+  },
+  {
+   "t": 2.3,
+   "type": "pulse",
+   "gain": 0.6
+  },
+  {
+   "t": 3.13,
+   "type": "whip",
+   "gain": 0.7
+  },
+  {
+   "t": 4.05,
+   "type": "slam",
+   "gain": 1
+  },
+  {
+   "t": 4.08,
+   "type": "kaching",
+   "gain": 0.75
+  },
+  {
+   "t": 4.96,
+   "type": "whip",
+   "gain": 0.7
+  },
+  {
+   "t": 5.75,
+   "type": "slam",
+   "gain": 1
+  },
+  {
+   "t": 5.78,
+   "type": "kaching",
+   "gain": 0.75
+  },
+  {
+   "t": 6.68,
+   "type": "whip",
+   "gain": 0.7
+  },
+  {
+   "t": 7.82,
+   "type": "slam",
+   "gain": 1
+  },
+  {
+   "t": 6.93,
+   "type": "sigh",
+   "gain": 0.4
+  },
+  {
+   "t": 8.8,
+   "type": "whip",
+   "gain": 0.7
+  },
+  {
+   "t": 9.62,
+   "type": "slam",
+   "gain": 1
+  },
+  {
+   "t": 10.12,
+   "type": "whoosh",
+   "gain": 0.6
+  },
+  {
+   "t": 10.53,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 10.857,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 11.068,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 11.25,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 11.416,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 11.571,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 11.717,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 11.856,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 11.99,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 12.119,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 12.244,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 12.366,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 12.485,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 12.601,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 12.714,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 12.826,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 12.935,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 13.042,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 13.148,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 13.251,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 13.354,
+   "type": "tick",
+   "gain": 0.45
+  },
+  {
+   "t": 13.455,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 13.554,
+   "type": "pop",
+   "gain": 0.55
+  },
+  {
+   "t": 13.653,
+   "type": "glitch",
+   "gain": 0.45
+  },
+  {
+   "t": 12.07,
+   "type": "riser",
+   "gain": 0.8,
+   "dur": 1.6799999999999997
+  },
+  {
+   "t": 13.75,
+   "type": "tapestop",
+   "gain": 0.9
+  },
+  {
+   "t": 14.07,
+   "type": "boom",
+   "gain": 0.75
+  },
+  {
+   "t": 14.07,
+   "type": "slice",
+   "gain": 0.45
+  },
+  {
+   "t": 15.06,
+   "type": "open",
+   "gain": 0.8
+  },
+  {
+   "t": 15.21,
+   "type": "crowd",
+   "gain": 0.35,
+   "dur": 3.2
+  },
+  {
+   "t": 15.88,
+   "type": "thud",
+   "gain": 0.55
+  },
+  {
+   "t": 15.96,
+   "type": "thud",
+   "gain": 0.55
+  },
+  {
+   "t": 16.04,
+   "type": "thud",
+   "gain": 0.55
+  },
+  {
+   "t": 16.12,
+   "type": "thud",
+   "gain": 0.55
+  },
+  {
+   "t": 17.14,
+   "type": "flip",
+   "gain": 0.6
+  },
+  {
+   "t": 17.22,
+   "type": "flip",
+   "gain": 0.6
+  },
+  {
+   "t": 17.3,
+   "type": "flip",
+   "gain": 0.6
+  },
+  {
+   "t": 17.38,
+   "type": "flip",
+   "gain": 0.6
+  },
+  {
+   "t": 17.44,
+   "type": "shuffle",
+   "gain": 0.55
+  },
+  {
+   "t": 17.85,
+   "type": "type3",
+   "gain": 0.35
+  },
+  {
+   "t": 17.97,
+   "type": "type3",
+   "gain": 0.35
+  },
+  {
+   "t": 18.09,
+   "type": "type3",
+   "gain": 0.35
+  },
+  {
+   "t": 18.21,
+   "type": "type3",
+   "gain": 0.35
+  },
+  {
+   "t": 19.26,
+   "type": "clash",
+   "gain": 0.9
+  },
+  {
+   "t": 19.31,
+   "type": "rip",
+   "gain": 0.7
+  },
+  {
+   "t": 19.75,
+   "type": "clash",
+   "gain": 0.8
+  },
+  {
+   "t": 19.8,
+   "type": "rip",
+   "gain": 0.7
+  },
+  {
+   "t": 20.33,
+   "type": "clash",
+   "gain": 1
+  },
+  {
+   "t": 21.01,
+   "type": "whoosh",
+   "gain": 0.45
+  },
+  {
+   "t": 21.63,
+   "type": "gavel",
+   "gain": 1
+  },
+  {
+   "t": 22.44,
+   "type": "kaching",
+   "gain": 0.8
+  },
+  {
+   "t": 22.44,
+   "type": "chime",
+   "gain": 0.6,
+   "note": 0
+  },
+  {
+   "t": 23.58,
+   "type": "stamp",
+   "gain": 0.55
+  },
+  {
+   "t": 24.52,
+   "type": "stamp",
+   "gain": 0.55
+  },
+  {
+   "t": 25.18,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.25,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.32,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.39,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.46,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.53,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.6,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.67,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.74,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.81,
+   "type": "tick",
+   "gain": 0.35
+  },
+  {
+   "t": 25.72,
+   "type": "chime",
+   "gain": 0.5,
+   "note": 2
+  },
+  {
+   "t": 26.35,
+   "type": "whoosh",
+   "gain": 0.6
+  },
+  {
+   "t": 26.52,
+   "type": "stonethud",
+   "gain": 1
+  },
+  {
+   "t": 26.98,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.04,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.1,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.16,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.22,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.28,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.34,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 27.4,
+   "type": "chisel",
+   "gain": 0.5
+  },
+  {
+   "t": 28.15,
+   "type": "stamp",
+   "gain": 0.9
+  },
+  {
+   "t": 28.91,
+   "type": "scratch",
+   "gain": 0.8
+  },
+  {
+   "t": 29.3,
+   "type": "type3",
+   "gain": 0.4
+  },
+  {
+   "t": 30.1,
+   "type": "slam",
+   "gain": 0.85
+  },
+  {
+   "t": 30.13,
+   "type": "kaching",
+   "gain": 0.4
+  },
+  {
+   "t": 30.32,
+   "type": "slam",
+   "gain": 0.85
+  },
+  {
+   "t": 30.35,
+   "type": "kaching",
+   "gain": 0.4
+  },
+  {
+   "t": 30.46,
+   "type": "slam",
+   "gain": 0.85
+  },
+  {
+   "t": 30.7,
+   "type": "slam",
+   "gain": 0.85
+  },
+  {
+   "t": 30.73,
+   "type": "kaching",
+   "gain": 0.4
+  }
+ ]
+}

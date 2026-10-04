@@ -47,3 +47,15 @@ ffmpeg -i out/video.mp4 -i out/mix.wav -map 0:v -map 1:a -c:v copy \
 | 40.6–47 | Finale | Petals argue, snap into the logo, end card |
 
 Third-party model logos come from `@lobehub/icons-static-svg`, shown in monochrome only before the anonymization flip. The end card carries a trademark disclaimer.
+
+## X cut (1:1, 31.5 s)
+
+`x-cut/` holds a square, loopable cut for X: a cold open (frame 0 is the thumbnail), the price fight, "Enough.", an arena debate with anonymous gladiators, a verdict and a reply-bait ending that loops back to frame 0. Plan and prompts: `x-cut/SCRIPT.md`.
+
+```bash
+python3 scripts/align_x.py            # run from x-cut/ (word timings)
+python3 scripts/prep_x_assets.py      # run from x-cut/ (keys the generated images)
+node x-cut/timeline.mjs
+python3 x-cut/audio.py                # x-cut/out/mix.wav
+node render.mjs --page x-cut/src/index.html --w 1080 --h 1080 --out x-cut/out --fps 60
+```
