@@ -1,0 +1,90 @@
+@font-face { font-family: 'Inter'; font-weight: 400; src: url('/node_modules/@fontsource/inter/files/inter-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 500; src: url('/node_modules/@fontsource/inter/files/inter-latin-500-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 600; src: url('/node_modules/@fontsource/inter/files/inter-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 700; src: url('/node_modules/@fontsource/inter/files/inter-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 800; src: url('/node_modules/@fontsource/inter/files/inter-latin-800-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Inter'; font-weight: 900; src: url('/node_modules/@fontsource/inter/files/inter-latin-900-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 400; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 600; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-600-normal.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 400; font-style: italic; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-400-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Gelasio'; font-weight: 600; font-style: italic; src: url('/node_modules/@fontsource/gelasio/files/gelasio-latin-600-italic.woff2') format('woff2'); }
+@font-face { font-family: 'Cinzel'; font-weight: 700; src: url('/node_modules/@fontsource/cinzel/files/cinzel-latin-700-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 400; src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2') format('woff2'); }
+@font-face { font-family: 'JetBrains Mono'; font-weight: 600; src: url('/node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-600-normal.woff2') format('woff2'); }
+
+:root {
+  --p1: #A8452F; --p2: #BF8526; --p3: #5F6B3E; --p4: #2F4E7E;
+  --d-page: #15140F; --d-surface: #1D1B15; --d-raised: #26231A; --d-hair: #35312A; --d-hair2: #4C463A; --d-ink: #EDE6D6; --d-muted: #A79E8B;
+  --l-page: #F4EEE3; --l-surface: #FBF7EF; --l-raised: #FFFDF8; --l-hair: #DBD1BE; --l-hair2: #B9AC93; --l-ink: #1B1A17; --l-muted: #5C574D;
+  --hot: #FF3D2E;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--d-page); }
+body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+#stage { position: absolute; inset: 0; width: 1920px; height: 1080px; overflow: hidden; background: var(--d-page); }
+.abs { position: absolute; left: 0; top: 0; }
+.layer { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; transform-origin: 960px 540px; }
+.mono { font-family: 'JetBrains Mono', monospace; }
+.serif { font-family: 'Gelasio', serif; }
+.caps { text-transform: uppercase; letter-spacing: 0.28em; }
+svg { overflow: visible; }
+
+/* chat windows (act II) */
+.win { position: absolute; width: 460px; height: 300px; background: var(--d-raised); border: 1.5px solid var(--d-hair2); border-radius: 2px; color: var(--d-ink); overflow: hidden; }
+.win .hd { height: 62px; display: flex; align-items: center; gap: 14px; padding: 0 20px; border-bottom: 1px solid var(--d-hair); }
+.win .hd svg { width: 32px; height: 32px; }
+.win .hd .nm { font-weight: 600; font-size: 25px; }
+.win .hd .ctl { margin-left: auto; display: flex; gap: 8px; }
+.win .hd .ctl i { width: 11px; height: 11px; border-radius: 50%; border: 1.5px solid var(--d-hair2); display: block; }
+.win .q { position: absolute; right: 18px; top: 78px; max-width: 360px; font-size: 17px; color: var(--d-muted); background: var(--d-surface); border: 1px solid var(--d-hair); padding: 8px 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.win .dots { position: absolute; left: 24px; top: 150px; display: flex; gap: 10px; }
+.win .dots i { width: 14px; height: 14px; border-radius: 50%; background: var(--d-muted); display: block; }
+.win .ans { position: absolute; left: 24px; top: 128px; transform-origin: 0 50%; white-space: nowrap; }
+.win .ans b { display: block; font-weight: 900; font-size: 104px; line-height: 1; letter-spacing: -0.03em; }
+.win .ans span { display: block; font-size: 20px; color: var(--d-muted); margin-top: 8px; }
+
+/* debate cards (act IV) */
+.card { position: absolute; width: 300px; height: 400px; transform-style: preserve-3d; }
+.card .face { position: absolute; inset: 0; backface-visibility: hidden; background: var(--l-surface); border: 1.5px solid var(--l-hair2); border-radius: 2px; overflow: hidden; }
+.card .front { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; color: var(--l-ink); }
+.card .front svg { width: 104px; height: 104px; }
+.card .front .nm { font-family: 'Gelasio', serif; font-size: 34px; }
+.card .front .id { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--l-muted); letter-spacing: 0.06em; }
+.card .back { transform: rotateY(180deg); background: var(--l-raised); }
+.card .back .band { position: absolute; left: 0; top: 0; right: 0; height: 10px; }
+.card .back .letter { position: absolute; left: 28px; top: 34px; font-family: 'Gelasio', serif; font-size: 140px; line-height: 1; }
+.card .back .lab { position: absolute; left: 30px; top: 186px; font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0.3em; color: var(--l-muted); }
+.card .back .arg { position: absolute; left: 30px; top: 236px; right: 24px; font-size: 23px; line-height: 1.38; color: var(--l-ink); }
+.card .back .arg div { white-space: nowrap; }
+
+/* protocol columns (act VI) */
+.col { position: absolute; width: 340px; height: 470px; background: var(--l-surface); border: 1.5px solid var(--l-hair2); border-radius: 2px; overflow: hidden; transform-origin: 50% 0; }
+.col .hd { height: 60px; display: flex; align-items: center; gap: 14px; padding: 0 20px; border-bottom: 1px solid var(--l-hair); font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0.22em; color: var(--l-muted); }
+.col .hd i { width: 26px; height: 26px; display: block; }
+.col .body { position: absolute; left: 22px; top: 82px; right: 18px; font-size: 21px; line-height: 32px; color: var(--l-ink); }
+.col .body .ln { position: relative; white-space: nowrap; height: 32px; }
+.col .body .strike { position: absolute; left: 0; top: 16px; height: 2.5px; width: 100%; transform-origin: 0 50%; }
+.col .note { position: absolute; left: 22px; right: 18px; top: 228px; font-family: 'Gelasio', serif; font-style: italic; font-size: 21px; line-height: 28px; }
+
+/* verdict card */
+.verdict { position: absolute; left: 370px; top: 510px; width: 1180px; height: 330px; background: var(--l-raised); border: 1.5px solid var(--l-hair2); border-radius: 2px; overflow: hidden; }
+.verdict .vh { height: 72px; display: flex; align-items: baseline; gap: 22px; padding: 22px 30px 0; border-bottom: 1px solid var(--l-hair); }
+.verdict .vh .k { font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0.3em; color: var(--l-muted); }
+.verdict .vh .t { font-family: 'Gelasio', serif; font-size: 30px; color: var(--l-ink); }
+.verdict .row { position: absolute; left: 0; right: 0; height: 86px; border-bottom: 1px solid var(--l-hair); }
+.verdict .row:last-child { border-bottom: 0; }
+.verdict .row .lb { position: absolute; left: 22px; top: 25px; padding: 8px 10px; font-family: 'JetBrains Mono', monospace; font-size: 15px; letter-spacing: 0.25em; color: var(--l-muted); }
+.verdict .row .viz { position: absolute; left: 260px; top: 0; width: 170px; height: 86px; }
+.verdict .row .tx { position: absolute; left: 450px; top: 26px; font-size: 25px; color: var(--l-ink); white-space: nowrap; }
+
+/* captions */
+.cap { position: absolute; left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
+.chunk { position: absolute; left: 0; width: 1920px; top: 900px; height: 90px; display: flex; justify-content: center; align-items: center; }
+.chunk .row { position: relative; display: flex; gap: 0; align-items: center; }
+.chunk .hl { position: absolute; top: 50%; height: 74px; margin-top: -37px; border-radius: 3px; }
+.chunk .w { position: relative; display: inline-block; padding: 0 12px; font-weight: 700; font-size: 52px; line-height: 74px; white-space: nowrap; }
+.chunk .w.em { font-family: 'Gelasio', serif; font-style: italic; font-weight: 600; font-size: 56px; }
+.chunk .w.shout { font-weight: 900; text-transform: uppercase; letter-spacing: -0.01em; }
+
+.fx { position: absolute; inset: 0; pointer-events: none; }
