@@ -53,8 +53,8 @@ Third-party model logos come from `@lobehub/icons-static-svg`, shown in monochro
 `x-cut/` holds a square, loopable cut for X: a cold open (frame 0 is the thumbnail), the price fight, "Enough.", an arena debate with anonymous gladiators, a verdict and a reply-bait ending that loops back to frame 0. Plan and prompts: `x-cut/SCRIPT.md`.
 
 ```bash
-python3 scripts/align_x.py            # run from x-cut/ (word timings)
-python3 scripts/prep_x_assets.py      # run from x-cut/ (keys the generated images)
+(cd x-cut && python3 ../scripts/align_x.py)        # word timings
+(cd x-cut && python3 ../scripts/prep_x_assets.py)  # keys the generated images
 node x-cut/timeline.mjs
 python3 x-cut/audio.py                # x-cut/out/mix.wav
 node render.mjs --page x-cut/src/index.html --w 1080 --h 1080 --out x-cut/out --fps 60
