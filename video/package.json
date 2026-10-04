@@ -1,0 +1,16 @@
+{
+  "name": "certamen-promo-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "node render.mjs"
+  },
+  "dependencies": {
+    "@fontsource/cinzel": "^5.3.0",
+    "@fontsource/gelasio": "^5.3.0",
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@lobehub/icons-static-svg": "^1.95.1",
+    "playwright-core": "^1.63.0"
+  }
+}
