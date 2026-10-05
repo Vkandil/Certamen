@@ -495,10 +495,54 @@ const tUrl = $('div', { cls: 'abs mono', text: 'vkandil.github.io/Certamen', sty
 const ctaL = $('div', { cls: 'layer' }, light);
 const discL = $('div', { cls: 'layer' }, light);
 const disclaimer = $('div', { cls: 'abs', text: 'Dramatization: AI answers are illustrative. Trademarks belong to their owners; no affiliation.', style: { left: 0, top: '1046px', width: '1080px', textAlign: 'center', fontSize: '15px', color: C.lMuted } }, discL);
-burst(tabletL, { t0: S('this') + 0.12, x: 540, y: 790, n: 34, colors: [C.lHair2, C.lMuted, '#cbb89a'], speed: [300, 900], size: [4, 10], life: 0.9, g: 1200, angle: -Math.PI / 2, spread: Math.PI * 1.2, seed: 500 });
+const TAB_LAND = S('certamen') - 0.04;
+const HAND = S('certamen') + 0.05;
+burst(tabletL, { t0: TAB_LAND, x: 540, y: 790, n: 34, colors: [C.lHair2, C.lMuted, '#cbb89a'], speed: [300, 900], size: [4, 10], life: 0.9, g: 1200, angle: -Math.PI / 2, spread: Math.PI * 1.2, seed: 500 });
 function initChisel() {
   wmLetters.forEach((l, i) => { const r = l.getBoundingClientRect(); burst(tabletL, { t0: S('certamen') + i * 0.06 + 0.02, x: r.left + r.width / 2, y: 560, n: 8, colors: ['rgba(78,58,38,.9)', C.lHair2], speed: [250, 650], size: [3, 7], life: 0.55, g: 1600, angle: -Math.PI / 2, spread: Math.PI * 0.9, seed: 600 + i }); });
 }
+/* ---------------------------------------------------------------- the four AIs rebuild the logo */
+const assembleL = $('div', { cls: 'layer' }, light);
+const ASM = [0, 1, 2, 3].map((j) => {
+  const el = $('div', { cls: 'abs', style: { overflow: 'hidden', display: 'flex', alignItems: 'center', paddingLeft: '18px', zIndex: 5 } }, assembleL);
+  const helm = $('div', { cls: 'helm', style: { width: '92px', height: '120px', background: P[j], WebkitMask: "url('/x-cut/assets/helmet.png') center / contain no-repeat", mask: "url('/x-cut/assets/helmet.png') center / contain no-repeat", flex: 'none' } }, el);
+  const lt = $('div', { cls: 'serif', text: LETTERS[j], style: { fontSize: '84px', lineHeight: '1', color: P[j], marginLeft: '8px' } }, el);
+  return { el, helm, lt, j };
+});
+const LOGO_BIG = [540, 470], PET_BIG = 170;
+const rot2 = (x, y, deg) => { const a = (deg * Math.PI) / 180; return [x * Math.cos(a) - y * Math.sin(a), x * Math.sin(a) + y * Math.cos(a)]; };
+function updateAssemble(t) {
+  const on = t >= S('this') - 0.12 && t < HAND;
+  show(assembleL, on);
+  if (!on) return;
+  const t0 = S('this') - 0.12;
+  const mp = outExpo(map(t, S('this') - 0.05, S('is') + 0.05)); // cards → petals → logo
+  const theta = -90 * (1 - mp);
+  const lock = t >= S('is') ? 0.07 * punch(t - S('is'), 8, 14) : 0;
+  const k = inOutCubic(map(t, HAND - 0.24, HAND)); // logo drops into the tablet
+  ASM.forEach((a) => {
+    const c = CARDS.find((x) => x.slot === a.j);
+    const cp = cardPos(c, t0);
+    const sx0 = 540 + (cp.x - 540) * 1.03, sy0 = 540 + (cp.y - 541) * 1.03;
+    const [px, py] = PETAL_POS[a.j];
+    const size = lerp(PET_BIG, 60, k) * (1 + lock);
+    const off = lerp(PET_BIG / 2 + 7, 33, k) * (1 + lock);
+    const [ox, oy] = rot2(px * off, py * off, theta);
+    const lx = lerp(LOGO_BIG[0], 540, k), ly = lerp(LOGO_BIG[1], 381, k);
+    const cx = lerp(sx0, lx + ox, mp), cy = lerp(sy0, ly + oy, mp);
+    const w = lerp(230 * 1.03, size, mp), h = lerp(150 * 1.03, size, mp);
+    const radii = petalRadii(a.j, size).map((v) => lerp(3, v, mp));
+    a.el.style.width = `${w.toFixed(1)}px`; a.el.style.height = `${h.toFixed(1)}px`;
+    a.el.style.borderRadius = radiusCss(radii);
+    a.el.style.background = mix(C.lRaised, P[a.j], map(mp, 0.05, 0.5));
+    a.el.style.border = mp < 0.35 ? `2px solid ${mix(C.lInk, P[a.j], mp / 0.35)}` : 'none';
+    a.el.style.boxShadow = `0 ${(18 * (1 - k)).toFixed(1)}px ${(36 * (1 - k)).toFixed(1)}px rgba(60,40,15,${(0.28 * (1 - k)).toFixed(3)})`;
+    T(a.el, { x: cx - w / 2, y: cy - h / 2, r: theta * mp, op: map(t, t0, t0 + 0.06) });
+    const inner = 1 - map(mp, 0, 0.3);
+    a.helm.style.opacity = inner; a.lt.style.opacity = inner;
+  });
+}
+
 function updateTablet(t) {
   const on = t >= S('this') - 0.1 && t < CTA0 + 0.25;
   show(tabletL, on);
@@ -507,11 +551,12 @@ function updateTablet(t) {
   if (!on) return;
   const tout = map(t, CTA0 - 0.05, CTA0 + 0.18);
   T(tabletL, { y: -80 * inCubic(tout), op: 1 - tout });
-  const land = S('this') + 0.12;
+  const land = TAB_LAND;
   const p = inQuad(map(t, land - 0.3, land));
   const sh = t >= land ? 10 * decay(t - land, 9) : 0;
   T(tablet, { s: lerp(1.5, 1, p) * (1 + (t >= land ? 0.02 * wobble(t - land, 10, 30) : 0)), op: map(t, land - 0.3, land - 0.2), x: sh * vnoise(t * 40, 1), y: sh * vnoise(t * 40, 2) });
-  tPetals.forEach((pt, j) => { const tt = S('is') + j * 0.05; const sp = spring(t - tt, 2.4, 0.55); const [px, py] = PETAL_POS[j]; T(pt, { x: px * 160 * (1 - sp), y: py * 160 * (1 - sp), s: sp, r: 90 * (1 - sp) }); });
+  show(tLogo, t >= HAND);
+  T(tLogo, { s: 1 + (t >= HAND ? 0.06 * punch(t - HAND, 9, 16) : 0) });
   wmLetters.forEach((l, i) => { const tau = t - (S('certamen') + i * 0.06); const q = outExpo(map(tau, 0, 0.2)); T(l, { s: lerp(1.4, 1, q), op: map(tau, 0, 0.04), blur: 5 * (1 - q) }); });
   const st = S('source') + 0.02; const sp = outExpo(map(t, st - 0.09, st));
   T(tStamp, { s: lerp(1.9, 1, sp), r: -7, op: map(t, st - 0.09, st - 0.05) });
@@ -520,6 +565,7 @@ function updateTablet(t) {
 
 /* ---------------------------------------------------------------- CTA: Certamen's own price + try / star */
 const CTA0 = TL.cta.t0;
+const M = TL.cta.marks;
 const ctaTitle = $('div', { cls: 'abs serif', text: 'Certamen’s price?', style: { left: 0, top: '110px', width: '1080px', textAlign: 'center', fontSize: '80px', fontWeight: 600, color: C.lInk } }, ctaL);
 const CROSSED = ['$9', '$99', '$29'].map((p, i) => {
   const x = [250, 540, 830][i];
@@ -549,46 +595,46 @@ let STAR_XY = [300, 690];
 function initCTA() {
   const r = starEl.getBoundingClientRect();
   STAR_XY = [r.left + r.width / 2, r.top + r.height / 2];
-  burst(ctaL, { t0: CTA0 + 3.3, x: STAR_XY[0], y: STAR_XY[1], n: 22, colors: [P[1], P[0], P[2], P[3]], speed: [400, 1000], size: [5, 10], life: 0.7, g: 500, seed: 700 });
-  burst(ctaL, { t0: CTA0 + 0.88, x: 540, y: 560, n: 26, colors: [...P, C.lInk], speed: [600, 1400], size: [5, 11], life: 0.75, g: 600, seed: 701 });
+  burst(ctaL, { t0: M.click, x: STAR_XY[0], y: STAR_XY[1], n: 22, colors: [P[1], P[0], P[2], P[3]], speed: [400, 1000], size: [5, 10], life: 0.7, g: 500, seed: 700 });
+  burst(ctaL, { t0: M.zero + 0.03, x: 540, y: 560, n: 26, colors: [...P, C.lInk], speed: [600, 1400], size: [5, 11], life: 0.75, g: 600, seed: 701 });
 }
 function updateCTA(t) {
   const on = t >= CTA0 - 0.05 && t < S('what2') - 0.04;
   show(ctaL, on);
   if (!on) return;
-  const c = t - CTA0;
-  const pB = inOutCubic(map(c, 2.0, 2.45)); // phase B: buttons
-  const outA = map(c, 2.0, 2.25);
-  const tp = spring(c, 2.8, 0.6); T(ctaTitle, { y: -40 * (1 - tp) - 40 * outA, op: map(c, 0, 0.06) * (1 - outA) });
-  CROSSED.forEach((x) => {
-    const p = spring(c - x.t, 3, 0.55);
-    T(x.el, { s: lerp(1.6, 1, p), op: map(c, x.t, x.t + 0.04) * (1 - 0.45 * map(c, 0.85, 1.0)) * (1 - outA), y: -40 * outA });
-    T(x.slash, { sx: outExpo(map(c, x.t + 0.12, x.t + 0.24)), r: -14, op: (1 - outA) * map(c, x.t + 0.12, x.t + 0.14), y: -40 * outA });
+  const pB = inOutCubic(map(t, M.phaseB, M.phaseB + 0.45)); // phase B: buttons
+  const outA = map(t, M.phaseB, M.phaseB + 0.25);
+  const tp = spring(t - M.title, 2.8, 0.6); T(ctaTitle, { y: -40 * (1 - tp) - 40 * outA, op: map(t, M.title, M.title + 0.06) * (1 - outA) });
+  CROSSED.forEach((x, i) => {
+    const t0 = M.prices[i];
+    const p = spring(t - t0, 3, 0.55);
+    T(x.el, { s: lerp(1.6, 1, p), op: map(t, t0, t0 + 0.04) * (1 - 0.45 * map(t, M.zero, M.zero + 0.15)) * (1 - outA), y: -40 * outA });
+    T(x.slash, { sx: outExpo(map(t, t0 + 0.12, t0 + 0.24)), r: -14, op: (1 - outA) * map(t, t0 + 0.12, t0 + 0.14), y: -40 * outA });
   });
-  const lp = outCubic(map(c, 0.8, 1.25));
+  const lp = outCubic(map(t, M.zero - 0.05, M.zero + 0.4));
   laurel2.style.clipPath = `inset(${(100 - 100 * lp).toFixed(1)}% 0 0 0)`;
-  const zp = outExpo(map(c, 0.85, 1.03));
-  T(zero, { s: lerp(2.4, 1, zp) * (1 + 0.04 * wobble(c - 1.03, 8, 20)), op: map(c, 0.85, 0.89), blur: 12 * (1 - zp) });
+  const zp = outExpo(map(t, M.zero, M.zero + 0.18));
+  T(zero, { s: lerp(2.4, 1, zp) * (1 + 0.04 * wobble(t - M.zero - 0.18, 8, 20)), op: map(t, M.zero, M.zero + 0.04), blur: 12 * (1 - zp) });
   ctaGroup.style.transform = `translateY(${(-354 * pB).toFixed(1)}px) scale(${lerp(1, 0.5, pB).toFixed(4)})`;
-  const sp = outExpo(map(c, 1.17, 1.25));
+  const sp = outExpo(map(t, M.stamp, M.stamp + 0.08));
   freeStamp.style.transform = `translate(-50%, ${(-420 * pB).toFixed(1)}px) rotate(-3deg) scale(${(lerp(1.8, 1, sp) * lerp(1, 0.8, pB)).toFixed(4)})`;
-  freeStamp.style.opacity = map(c, 1.17, 1.21).toFixed(3);
-  [[BTN1, 2.2], [BTN2, 2.35]].forEach(([b, t0]) => { const p = spring(c - t0, 2.6, 0.6); T(b.b, { y: 90 * (1 - p), op: map(c, t0, t0 + 0.08) }); });
-  const tg = outCubic(map(c, 2.6, 2.9)); T(ctaTag, { y: 14 * (1 - tg), op: tg });
-  // cursor clicks the star
-  const mv = outCubic(map(c, 2.65, 3.22));
-  const click = c >= 3.3;
-  show(cursor, c >= 2.65);
+  freeStamp.style.opacity = map(t, M.stamp, M.stamp + 0.04).toFixed(3);
+  [[BTN1, M.btn1], [BTN2, M.btn2]].forEach(([b, t0]) => { const p = spring(t - t0, 2.6, 0.6); T(b.b, { y: 90 * (1 - p), op: map(t, t0, t0 + 0.08) }); });
+  const tg = outCubic(map(t, M.tag, M.tag + 0.3)); T(ctaTag, { y: 14 * (1 - tg), op: tg });
+  // cursor clicks the star on "GitHub"
+  const mv = outCubic(map(t, M.cursor0, M.click - 0.08));
+  const click = t >= M.click;
+  show(cursor, t >= M.cursor0);
   const [sx, sy] = STAR_XY;
-  T(cursor, { x: lerp(1010, sx - 4, mv), y: lerp(1050, sy - 2, mv), s: c >= 3.26 && c < 3.4 ? 0.82 : 1, op: map(c, 2.65, 2.75) });
-  const press = click ? 0.03 * punch(c - 3.3, 9, 18) : 0;
+  T(cursor, { x: lerp(1010, sx - 4, mv), y: lerp(1050, sy - 2, mv), s: t >= M.click - 0.04 && t < M.click + 0.1 ? 0.82 : 1, op: map(t, M.cursor0, M.cursor0 + 0.1) });
+  const press = click ? 0.03 * punch(t - M.click, 9, 18) : 0;
   BTN2.b.style.transform += ` scale(${(1 - press).toFixed(4)})`;
   starEl.textContent = click ? '★' : '☆';
   starEl.style.color = click ? P[1] : C.lInk;
   starEl.style.display = 'inline-block';
-  starEl.style.transform = `scale(${(click ? 1 + 0.6 * decay(c - 3.3, 6) : 1).toFixed(3)})`;
-  const pf = map(c, 3.32, 4.0);
-  show(plusOne, c >= 3.32);
+  starEl.style.transform = `scale(${(click ? 1 + 0.6 * decay(t - M.click, 6) : 1).toFixed(3)})`;
+  const pf = map(t, M.click + 0.02, M.click + 0.7);
+  show(plusOne, t >= M.click + 0.02);
   T(plusOne, { x: sx + 20, y: sy - 40 - 90 * outCubic(pf), op: 1 - map(pf, 0.6, 1) });
 }
 
@@ -615,13 +661,13 @@ function updateAsk(t) {
 }
 
 /* ================================================================ captions */
-const EM = new Set(['saas', 'debate', 'hidden', 'arguments', 'apart', 'arbiter', 'rules', 'plan', 'customers', 'certamen', 'source', 'argue']);
-const SHOUT = new Set(['nine', 'ninety', 'depends', 'free', 'clue', 'twenty']);
+const EM = new Set(['c_source', 'c_github', 'saas', 'debate', 'hidden', 'arguments', 'apart', 'arbiter', 'rules', 'plan', 'customers', 'certamen', 'source', 'argue']);
+const SHOUT = new Set(['c_zero', 'nine', 'ninety', 'depends', 'free', 'clue', 'twenty']);
 const CHUNKS = [
   ['i', 'ais'], ['what', 'saas'], ['gpt', 'dollars', 'chaos'], ['claude', 'nine2', 'chaos'], ['gemini', 'depends', 'chaos'], ['grok', 'free', 'chaos'],
   ['four2', 'ais2', 'chaos'], ['four3', 'answers', 'chaos'], ['zero', 'clue', 'chaos'],
   ['so', 'debate'], ['names', 'hidden'], ['only', 'arguments'], ['they', 'others'], ['logic', 'apart'], ['and', 'rules'],
-  ['twenty', 'month'], ['one', 'plan'], ['raise', 'customers'], ['this', 'certamen'], ['open', 'source'], ['let', 'argue', 'chaos']
+  ['twenty', 'month'], ['one', 'plan'], ['raise', 'customers'], ['this', 'certamen'], ['open', 'source'], ['c_certamens', 'c_price'], ['c_zero', 'c_zero'], ['c_its', 'c_source'], ['c_star', 'c_github'], ['let', 'argue', 'chaos']
 ].map(([a, b, mode]) => ({ ws: words.slice(WD[a].i, WD[b].i + 1).filter((w) => w.t), mode }));
 CHUNKS.forEach((c, i) => {
   c.in = i === 0 ? -1 : c.ws[0].s - 0.08;
@@ -682,6 +728,7 @@ window.renderFrame = (t) => {
   updateHud2(t);
   updateVerdict(t);
   updateTablet(t);
+  updateAssemble(t);
   updateCTA(t);
   updateAsk(t);
   updateBursts(t);

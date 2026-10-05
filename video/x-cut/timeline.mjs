@@ -5,8 +5,13 @@ import { readFileSync, writeFileSync } from 'node:fs';
 // CTA gap: the voice-over is split after "Open source." and GAP seconds are inserted for the call to action
 const base = JSON.parse(readFileSync(new URL('./data/words_base.json', import.meta.url)));
 const SPLIT = base.find((w) => w.k === 'source').e + 0.15;
-export const GAP = 4.2;
-const words = base.map((w) => (w.s >= SPLIT ? { ...w, s: +(w.s + GAP).toFixed(2), e: +(w.e + GAP).toFixed(2) } : w));
+export const GAP = 5.3;
+// the recorded CTA line is dropped into the gap, CTA_LEAD seconds after the split
+const CTA_LEAD = 0.08;
+const CTA_TEXT = { certamens: 'Certamen’s', price: 'price?', zero: 'Zero.', its: 'It’s', open: 'open', source: 'source.', star: 'Star', it: 'it', on: 'on', github: 'GitHub.' };
+const ctaWords = JSON.parse(readFileSync(new URL('./data/cta_words.json', import.meta.url)))
+  .map((w) => ({ k: 'c_' + w.k, t: CTA_TEXT[w.k], s: +(SPLIT + CTA_LEAD + w.s).toFixed(2), e: +(SPLIT + CTA_LEAD + w.e).toFixed(2) }));
+const words = [...base.map((w) => (w.s >= SPLIT ? { ...w, s: +(w.s + GAP).toFixed(2), e: +(w.e + GAP).toFixed(2) } : w)), ...ctaWords].sort((a, b) => a.s - b.s);
 writeFileSync(new URL('./data/words.json', import.meta.url), JSON.stringify(words, null, 0));
 const W = Object.fromEntries(words.map((w) => [w.k, w]));
 const S = (k) => W[k].s;
@@ -83,26 +88,37 @@ for (let i = 0; i < 10; i++) cue(S('ten') + i * 0.07, 'tick', 0.35);
 cue(S('customers') + 0.25, 'chime', 0.5, { note: 2 });
 // Certamen
 cue(S('this') - 0.05, 'whoosh', 0.6);
-cue(S('this') + 0.12, 'stonethud', 1.0);
+cue(S('is'), 'lock', 0.8);
+cue(S('certamen') - 0.04, 'stonethud', 1.0);
 for (let i = 0; i < 8; i++) cue(S('certamen') + i * 0.06, 'chisel', 0.5);
 cue(S('source') + 0.02, 'stamp', 0.9);
-// CTA: price gag, then try / star
-const c = (dt) => CTA0 + dt;
-cue(c(0.0), 'whoosh', 0.6);
-[0.15, 0.35, 0.55].forEach((dt) => { cue(c(dt), 'pop', 0.5); cue(c(dt + 0.12), 'slash', 0.6); });
-cue(c(0.85), 'slam', 0.9);
-cue(c(0.85), 'chime', 0.6, { note: 2 });
-cue(c(1.25), 'stamp', 0.8);
-cue(c(2.0), 'whoosh', 0.5);
-cue(c(2.2), 'pop', 0.5);
-cue(c(2.35), 'pop', 0.5);
-cue(c(3.3), 'click', 0.8);
-cue(c(3.32), 'chime', 0.7, { note: 1 });
+// CTA marks (absolute seconds), locked to the recorded CTA line
+const marks = {
+  title: S('c_certamens') - 0.02,
+  prices: [S('c_price') - 0.25, S('c_price') + 0.0, S('c_price') + 0.25],
+  zero: S('c_zero'),
+  stamp: S('c_open') - 0.02,
+  phaseB: S('c_source') + 0.25,
+  btn1: S('c_source') + 0.62, btn2: S('c_star') - 0.05,
+  tag: S('c_star') + 0.1,
+  cursor0: S('c_star') - 0.05,
+  click: S('c_github') + 0.05
+};
+cue(marks.title, 'whoosh', 0.6);
+marks.prices.forEach((t) => { cue(t, 'pop', 0.5); cue(t + 0.12, 'slash', 0.6); });
+cue(marks.zero, 'slam', 0.9);
+cue(marks.zero, 'chime', 0.6, { note: 2 });
+cue(marks.stamp + 0.08, 'stamp', 0.8);
+cue(marks.phaseB, 'whoosh', 0.5);
+cue(marks.btn1, 'pop', 0.5);
+cue(marks.btn2, 'pop', 0.5);
+cue(marks.click, 'click', 0.8);
+cue(marks.click + 0.02, 'chime', 0.7, { note: 1 });
 // question + loop back
 cue(S('what2') - 0.04, 'scratch', 0.8);
 cue(S('what2') + 0.35, 'type3', 0.4);
 reprise.forEach((t, i) => { cue(t, 'slam', 0.85); if (i !== 2) cue(t + 0.03, 'kaching', 0.4); });
 
-const timeline = { duration: DURATION, main, reprise, swarm, sfx, cta: { t0: CTA0, split: SPLIT, gap: GAP } };
+const timeline = { duration: DURATION, main, reprise, swarm, sfx, cta: { t0: CTA0, split: SPLIT, gap: GAP, lead: CTA_LEAD, marks } };
 writeFileSync(new URL('./data/timeline.json', import.meta.url), JSON.stringify(timeline, null, 1));
 console.log(`x-cut timeline: ${sfx.length} cues, ${swarm.length} swarm spawns, ${DURATION}s`);
