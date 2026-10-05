@@ -178,6 +178,9 @@ def fx_x(kind, cue):
         f = 900 * (1 + 0.8 * np.sin(2 * np.pi * 7 * t_axis(d)))
         x = bp(noise(d), 500, 4000) * np.sin(2 * np.pi * np.cumsum(f) / SR) * env_exp(d, 4)
         return x
+    if kind == 'click':
+        x = bp(noise(0.02), 2000, 8000) * env_exp(0.02, 160)
+        return ov(x, sine(1800, 0.05) * env_exp(0.05, 70), 0.5)
     return B.fx(kind, cue)
 
 
@@ -185,7 +188,7 @@ REVERB = {'slam': 0.3, 'impact': 0.4, 'boom': 0.5, 'slice': 0.5, 'chisel': 0.3, 
 
 
 def main():
-    vo, sr = sf.read(HERE / 'work/vo48.wav', dtype='float64')
+    vo, sr = sf.read(HERE / 'work/vo48_cta.wav', dtype='float64')  # VO with the CTA gap (see timeline.mjs)
     assert sr == SR
     vo = vo[:N] if len(vo) >= N else np.pad(vo, (0, N - len(vo)))
     music = build_music()

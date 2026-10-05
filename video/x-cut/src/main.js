@@ -458,7 +458,7 @@ function updateHud2(t) {
 /* ---------------------------------------------------------------- verdict */
 const laurel = $('img', { cls: 'abs', style: { left: `${540 - 300}px`, top: '128px', width: '600px' } }, verdictL);
 laurel.src = '/x-cut/assets/laurel.png';
-const vPrice = $('div', { cls: 'abs serif', text: '$29', style: { left: 0, top: '228px', width: '1080px', textAlign: 'center', fontSize: '220px', fontWeight: 600, lineHeight: '1', color: C.lInk, letterSpacing: '-0.03em' } }, verdictL);
+const vPrice = $('div', { cls: 'abs serif', text: '$29', style: { left: 0, top: '228px', width: '1080px', textAlign: 'center', fontSize: '220px', fontWeight: 600, lineHeight: '1', color: C.lInk, letterSpacing: '-0.03em', fontVariantNumeric: 'lining-nums' } }, verdictL);
 const vMonth = $('div', { cls: 'abs mono', text: '/ MONTH', style: { left: 0, top: '458px', width: '1080px', textAlign: 'center', fontSize: '34px', letterSpacing: '0.3em', color: C.lMuted } }, verdictL);
 const vOne = $('div', { cls: 'abs mono', text: 'ONE PLAN', style: { left: `${540 - 160}px`, top: '650px', width: '320px', height: '66px', lineHeight: '66px', textAlign: 'center', background: C.lInk, color: C.lPage, fontSize: '30px', fontWeight: 600, letterSpacing: '0.24em' } }, verdictL);
 const vRaise = $('div', { cls: 'abs mono', text: 'RAISE AFTER 10 CUSTOMERS', style: { left: `${540 - 330}px`, top: '734px', width: '660px', height: '66px', lineHeight: '62px', textAlign: 'center', border: `3px solid ${C.lInk}`, color: C.lInk, fontSize: '28px', fontWeight: 600, letterSpacing: '0.14em', background: C.lRaised } }, verdictL);
@@ -492,15 +492,21 @@ const wordmark = $('div', { cls: 'abs', style: { left: 0, top: '478px', width: '
 const wmLetters = [...'CERTAMEN'].map((ch) => $('span', { text: ch, style: { display: 'inline-block' } }, wordmark));
 const tStamp = $('div', { cls: 'abs mono', text: 'OPEN SOURCE · MIT', style: { left: '600px', top: '690px', padding: '10px 20px', border: `4px solid ${C.lInk}`, background: rgba(C.lRaised, 0.92), fontSize: '30px', fontWeight: 600, letterSpacing: '0.16em', color: C.lInk } }, tabletL);
 const tUrl = $('div', { cls: 'abs mono', text: 'vkandil.github.io/Certamen', style: { left: 0, top: '820px', width: '1080px', textAlign: 'center', fontSize: '34px', color: C.lInk } }, tabletL);
-const disclaimer = $('div', { cls: 'abs', text: 'Dramatization: AI answers are illustrative. Trademarks belong to their owners; no affiliation.', style: { left: 0, top: '1046px', width: '1080px', textAlign: 'center', fontSize: '15px', color: C.lMuted } }, tabletL);
+const ctaL = $('div', { cls: 'layer' }, light);
+const discL = $('div', { cls: 'layer' }, light);
+const disclaimer = $('div', { cls: 'abs', text: 'Dramatization: AI answers are illustrative. Trademarks belong to their owners; no affiliation.', style: { left: 0, top: '1046px', width: '1080px', textAlign: 'center', fontSize: '15px', color: C.lMuted } }, discL);
 burst(tabletL, { t0: S('this') + 0.12, x: 540, y: 790, n: 34, colors: [C.lHair2, C.lMuted, '#cbb89a'], speed: [300, 900], size: [4, 10], life: 0.9, g: 1200, angle: -Math.PI / 2, spread: Math.PI * 1.2, seed: 500 });
 function initChisel() {
   wmLetters.forEach((l, i) => { const r = l.getBoundingClientRect(); burst(tabletL, { t0: S('certamen') + i * 0.06 + 0.02, x: r.left + r.width / 2, y: 560, n: 8, colors: ['rgba(78,58,38,.9)', C.lHair2], speed: [250, 650], size: [3, 7], life: 0.55, g: 1600, angle: -Math.PI / 2, spread: Math.PI * 0.9, seed: 600 + i }); });
 }
 function updateTablet(t) {
-  const on = t >= S('this') - 0.1 && t < S('what2') - 0.04;
+  const on = t >= S('this') - 0.1 && t < CTA0 + 0.25;
   show(tabletL, on);
+  disclaimer.style.opacity = map(t, S('this') + 0.3, S('this') + 0.6).toFixed(3);
+  show(discL, t >= S('this') && t < S('what2') - 0.04);
   if (!on) return;
+  const tout = map(t, CTA0 - 0.05, CTA0 + 0.18);
+  T(tabletL, { y: -80 * inCubic(tout), op: 1 - tout });
   const land = S('this') + 0.12;
   const p = inQuad(map(t, land - 0.3, land));
   const sh = t >= land ? 10 * decay(t - land, 9) : 0;
@@ -510,7 +516,80 @@ function updateTablet(t) {
   const st = S('source') + 0.02; const sp = outExpo(map(t, st - 0.09, st));
   T(tStamp, { s: lerp(1.9, 1, sp), r: -7, op: map(t, st - 0.09, st - 0.05) });
   const up = outCubic(map(t, S('open'), S('open') + 0.35)); T(tUrl, { y: 16 * (1 - up), op: up });
-  disclaimer.style.opacity = map(t, S('this') + 0.3, S('this') + 0.6).toFixed(3);
+}
+
+/* ---------------------------------------------------------------- CTA: Certamen's own price + try / star */
+const CTA0 = TL.cta.t0;
+const ctaTitle = $('div', { cls: 'abs serif', text: 'Certamen’s price?', style: { left: 0, top: '110px', width: '1080px', textAlign: 'center', fontSize: '80px', fontWeight: 600, color: C.lInk } }, ctaL);
+const CROSSED = ['$9', '$99', '$29'].map((p, i) => {
+  const x = [250, 540, 830][i];
+  const el = $('div', { cls: 'abs', text: p, style: { left: `${x - 150}px`, top: '245px', width: '300px', textAlign: 'center', fontWeight: 900, fontSize: '112px', lineHeight: '1', color: C.lInk, letterSpacing: '-0.03em' } }, ctaL);
+  const slash = $('div', { cls: 'abs', style: { left: `${x - 105}px`, top: '297px', width: '210px', height: '12px', background: P[0], transformOrigin: '0 50%' } }, ctaL);
+  return { el, slash, t: 0.15 + i * 0.2 };
+});
+const ctaGroup = $('div', { cls: 'layer', style: { transformOrigin: '540px 584px' } }, ctaL);
+const laurel2 = $('img', { cls: 'abs', style: { left: '270px', top: '360px', width: '540px' } }, ctaGroup);
+laurel2.src = '/x-cut/assets/laurel.png';
+const zero = $('div', { cls: 'abs serif', text: '$0', style: { left: 0, top: '455px', width: '1080px', textAlign: 'center', fontSize: '250px', fontWeight: 600, lineHeight: '1', color: C.lInk, letterSpacing: '-0.03em', fontVariantNumeric: 'lining-nums' } }, ctaGroup);
+const freeStamp = $('div', { cls: 'abs mono', text: '100% FREE · OPEN SOURCE', style: { left: '50%', top: '800px', padding: '14px 26px', background: C.lInk, color: C.lPage, fontSize: '32px', fontWeight: 600, letterSpacing: '0.14em', whiteSpace: 'nowrap' } }, ctaL);
+function ctaButton(top, primary, titleHtml, url) {
+  const b = $('div', { cls: 'abs', style: { left: '140px', top: `${top}px`, width: '800px', height: '150px', borderRadius: '6px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '10px', background: primary ? C.lInk : C.lRaised, border: `3px solid ${C.lInk}`, color: primary ? C.lPage : C.lInk, boxShadow: '0 14px 30px rgba(60,40,15,.18)' } }, ctaL);
+  const ttl = $('div', { html: titleHtml, style: { fontWeight: 800, fontSize: '52px', letterSpacing: '-0.01em' } }, b);
+  $('div', { cls: 'mono', text: url, style: { fontSize: '28px', color: primary ? C.lHair : C.lMuted } }, b);
+  return { b, ttl };
+}
+const BTN1 = ctaButton(452, true, 'Try it free&nbsp;&nbsp;→', 'vkandil.github.io/Certamen');
+const BTN2 = ctaButton(632, false, '<span class="star">☆</span>&nbsp;Star it on GitHub', 'github.com/Vkandil/Certamen');
+const starEl = BTN2.ttl.querySelector('.star');
+const ctaTag = $('div', { cls: 'abs', text: 'No account. No paywall. Bring your own OpenRouter key.', style: { left: 0, top: '814px', width: '1080px', textAlign: 'center', fontSize: '31px', fontWeight: 700, color: C.lMuted } }, ctaL);
+const cursor = $s('svg', { width: 54, height: 54, viewBox: '0 0 24 24', style: 'position:absolute;left:0;top:0;z-index:60' }, ctaL);
+$s('path', { d: 'M3 2 L3 19 L8 14.5 L11.5 22 L14.5 20.6 L11 13.3 L18 13.3 Z', fill: C.lInk, stroke: '#fff', 'stroke-width': 1.4, 'stroke-linejoin': 'round' }, cursor);
+const plusOne = $('div', { cls: 'abs', text: '+1 ★', style: { fontWeight: 900, fontSize: '44px', color: P[1], zIndex: 61 } }, ctaL);
+let STAR_XY = [300, 690];
+function initCTA() {
+  const r = starEl.getBoundingClientRect();
+  STAR_XY = [r.left + r.width / 2, r.top + r.height / 2];
+  burst(ctaL, { t0: CTA0 + 3.3, x: STAR_XY[0], y: STAR_XY[1], n: 22, colors: [P[1], P[0], P[2], P[3]], speed: [400, 1000], size: [5, 10], life: 0.7, g: 500, seed: 700 });
+  burst(ctaL, { t0: CTA0 + 0.88, x: 540, y: 560, n: 26, colors: [...P, C.lInk], speed: [600, 1400], size: [5, 11], life: 0.75, g: 600, seed: 701 });
+}
+function updateCTA(t) {
+  const on = t >= CTA0 - 0.05 && t < S('what2') - 0.04;
+  show(ctaL, on);
+  if (!on) return;
+  const c = t - CTA0;
+  const pB = inOutCubic(map(c, 2.0, 2.45)); // phase B: buttons
+  const outA = map(c, 2.0, 2.25);
+  const tp = spring(c, 2.8, 0.6); T(ctaTitle, { y: -40 * (1 - tp) - 40 * outA, op: map(c, 0, 0.06) * (1 - outA) });
+  CROSSED.forEach((x) => {
+    const p = spring(c - x.t, 3, 0.55);
+    T(x.el, { s: lerp(1.6, 1, p), op: map(c, x.t, x.t + 0.04) * (1 - 0.45 * map(c, 0.85, 1.0)) * (1 - outA), y: -40 * outA });
+    T(x.slash, { sx: outExpo(map(c, x.t + 0.12, x.t + 0.24)), r: -14, op: (1 - outA) * map(c, x.t + 0.12, x.t + 0.14), y: -40 * outA });
+  });
+  const lp = outCubic(map(c, 0.8, 1.25));
+  laurel2.style.clipPath = `inset(${(100 - 100 * lp).toFixed(1)}% 0 0 0)`;
+  const zp = outExpo(map(c, 0.85, 1.03));
+  T(zero, { s: lerp(2.4, 1, zp) * (1 + 0.04 * wobble(c - 1.03, 8, 20)), op: map(c, 0.85, 0.89), blur: 12 * (1 - zp) });
+  ctaGroup.style.transform = `translateY(${(-354 * pB).toFixed(1)}px) scale(${lerp(1, 0.5, pB).toFixed(4)})`;
+  const sp = outExpo(map(c, 1.17, 1.25));
+  freeStamp.style.transform = `translate(-50%, ${(-420 * pB).toFixed(1)}px) rotate(-3deg) scale(${(lerp(1.8, 1, sp) * lerp(1, 0.8, pB)).toFixed(4)})`;
+  freeStamp.style.opacity = map(c, 1.17, 1.21).toFixed(3);
+  [[BTN1, 2.2], [BTN2, 2.35]].forEach(([b, t0]) => { const p = spring(c - t0, 2.6, 0.6); T(b.b, { y: 90 * (1 - p), op: map(c, t0, t0 + 0.08) }); });
+  const tg = outCubic(map(c, 2.6, 2.9)); T(ctaTag, { y: 14 * (1 - tg), op: tg });
+  // cursor clicks the star
+  const mv = outCubic(map(c, 2.65, 3.22));
+  const click = c >= 3.3;
+  show(cursor, c >= 2.65);
+  const [sx, sy] = STAR_XY;
+  T(cursor, { x: lerp(1010, sx - 4, mv), y: lerp(1050, sy - 2, mv), s: c >= 3.26 && c < 3.4 ? 0.82 : 1, op: map(c, 2.65, 2.75) });
+  const press = click ? 0.03 * punch(c - 3.3, 9, 18) : 0;
+  BTN2.b.style.transform += ` scale(${(1 - press).toFixed(4)})`;
+  starEl.textContent = click ? '★' : '☆';
+  starEl.style.color = click ? P[1] : C.lInk;
+  starEl.style.display = 'inline-block';
+  starEl.style.transform = `scale(${(click ? 1 + 0.6 * decay(c - 3.3, 6) : 1).toFixed(3)})`;
+  const pf = map(c, 3.32, 4.0);
+  show(plusOne, c >= 3.32);
+  T(plusOne, { x: sx + 20, y: sy - 40 - 90 * outCubic(pf), op: 1 - map(pf, 0.6, 1) });
 }
 
 /* ---------------------------------------------------------------- What would you charge? */
@@ -603,6 +682,7 @@ window.renderFrame = (t) => {
   updateHud2(t);
   updateVerdict(t);
   updateTablet(t);
+  updateCTA(t);
   updateAsk(t);
   updateBursts(t);
   updateCaptions(t);
@@ -615,6 +695,7 @@ await Promise.all([laurel, tablet].map((im) => (im.complete ? 0 : new Promise((r
 for (const src of ['/x-cut/assets/arena.jpg', '/x-cut/assets/stone.jpg', '/x-cut/assets/helmet.png']) await new Promise((r) => { const im = new Image(); im.onload = r; im.onerror = r; im.src = src; });
 show(light, true); show(tabletL, true); light.style.clipPath = 'none';
 initChisel();
+initCTA();
 measureCaptions();
 window.DURATION = DUR;
 window.renderFrame(0);

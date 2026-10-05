@@ -2,11 +2,17 @@
 // Shared by the page (visuals) and audio.py (score + SFX).
 import { readFileSync, writeFileSync } from 'node:fs';
 
-const words = JSON.parse(readFileSync(new URL('./data/words.json', import.meta.url)));
+// CTA gap: the voice-over is split after "Open source." and GAP seconds are inserted for the call to action
+const base = JSON.parse(readFileSync(new URL('./data/words_base.json', import.meta.url)));
+const SPLIT = base.find((w) => w.k === 'source').e + 0.15;
+export const GAP = 4.2;
+const words = base.map((w) => (w.s >= SPLIT ? { ...w, s: +(w.s + GAP).toFixed(2), e: +(w.e + GAP).toFixed(2) } : w));
+writeFileSync(new URL('./data/words.json', import.meta.url), JSON.stringify(words, null, 0));
 const W = Object.fromEntries(words.map((w) => [w.k, w]));
 const S = (k) => W[k].s;
 
-export const DURATION = 31.5;
+export const DURATION = +(31.5 + GAP).toFixed(2);
+const CTA0 = +(W.source.e + 0.12).toFixed(3);
 
 // the four AIs of the hook (2×2 grid), with the price each one slams
 const main = [
@@ -80,11 +86,23 @@ cue(S('this') - 0.05, 'whoosh', 0.6);
 cue(S('this') + 0.12, 'stonethud', 1.0);
 for (let i = 0; i < 8; i++) cue(S('certamen') + i * 0.06, 'chisel', 0.5);
 cue(S('source') + 0.02, 'stamp', 0.9);
+// CTA: price gag, then try / star
+const c = (dt) => CTA0 + dt;
+cue(c(0.0), 'whoosh', 0.6);
+[0.15, 0.35, 0.55].forEach((dt) => { cue(c(dt), 'pop', 0.5); cue(c(dt + 0.12), 'slash', 0.6); });
+cue(c(0.85), 'slam', 0.9);
+cue(c(0.85), 'chime', 0.6, { note: 2 });
+cue(c(1.25), 'stamp', 0.8);
+cue(c(2.0), 'whoosh', 0.5);
+cue(c(2.2), 'pop', 0.5);
+cue(c(2.35), 'pop', 0.5);
+cue(c(3.3), 'click', 0.8);
+cue(c(3.32), 'chime', 0.7, { note: 1 });
 // question + loop back
 cue(S('what2') - 0.04, 'scratch', 0.8);
 cue(S('what2') + 0.35, 'type3', 0.4);
 reprise.forEach((t, i) => { cue(t, 'slam', 0.85); if (i !== 2) cue(t + 0.03, 'kaching', 0.4); });
 
-const timeline = { duration: DURATION, main, reprise, swarm, sfx };
+const timeline = { duration: DURATION, main, reprise, swarm, sfx, cta: { t0: CTA0, split: SPLIT, gap: GAP } };
 writeFileSync(new URL('./data/timeline.json', import.meta.url), JSON.stringify(timeline, null, 1));
 console.log(`x-cut timeline: ${sfx.length} cues, ${swarm.length} swarm spawns, ${DURATION}s`);

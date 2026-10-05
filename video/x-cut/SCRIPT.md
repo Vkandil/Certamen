@@ -78,3 +78,21 @@ Palette reference: stone #F4EEE3 · ink #1B1A17 · terracotta #A8452F · ochre #
 
 ### 5. `helmet.png` — gladiator helmet (2048×2048, square)
 > Flat minimalist silhouette icon of an ancient Roman gladiator helmet (murmillo style with a crest and a grilled visor hiding the face), three-quarter front view, solid single color pure black #000000 shape with the visor grille cut out as negative space, on a perfectly flat pure white #FFFFFF background, centered, bold geometric shapes, no outline stroke, no shading, no gradient, no text
+
+## Call to action (added after the first render)
+
+A 4.2 s segment is inserted after "Open source." (the voice-over is split there; see `timeline.mjs`, `GAP`):
+
+| Time in segment | On screen |
+|---|---|
+| 0.0–0.75 s | "Certamen's price?", then $9 / $99 / $29 each pop in and get slashed |
+| 0.85 s | **$0** slams inside the laurel, stamped "100% FREE · OPEN SOURCE" |
+| 2.0–2.5 s | The laurel shrinks to the top. Buttons: **Try it free →** (vkandil.github.io/Certamen) and **☆ Star it on GitHub** (github.com/Vkandil/Certamen) |
+| 2.6 s | "No account. No paywall. Bring your own OpenRouter key." (the app is free; model usage is billed by OpenRouter) |
+| 2.65–3.3 s | A cursor clicks the star, which fills with a "+1 ★" burst |
+
+Optional voice line for the gap (≤ 3.8 s), to record with the same voice:
+
+```
+[playful, confident] Certamen's price? [short pause] Zero. [warm] Open source. [inviting] Star it on GitHub.
+```
