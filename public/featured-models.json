@@ -3,5 +3,24 @@
   "pin": [],
   "exclude": [],
   "labs": [],
-  "snapshot": {}
+  "snapshot": {
+    "best": [
+      "anthropic/claude-fable-5.1",
+      "x-ai/grok-4.7",
+      "qwen/qwen3.8-max-prime",
+      "z-ai/glm-5.3-prime"
+    ],
+    "fast": [
+      "anthropic/claude-haiku-5.5:batch",
+      "x-ai/grok-build-0.1",
+      "qwen/qwen3.8-omni-flash",
+      "z-ai/glm-5.3-flash:batch"
+    ],
+    "open": [
+      "qwen/qwen3.8-2.4t-a95b",
+      "z-ai/glm-5.2",
+      "openai/gpt-oss-safeguard-20b",
+      "google/gemma-4-31b-it"
+    ]
+  }
 }
