@@ -93,6 +93,7 @@ Start from recommended model families, then tune each slot. You can mix frontier
 
 - Local-first React app with no backend.
 - OpenRouter model catalog loaded live, with the newest flagship of each lab suggested automatically (see [Choosing Models](#choosing-models)).
+- Pick 2 to 6 debaters in one click (up to 8 from the catalog); presets follow the chosen size, one lab per slot.
 - One-click rosters: best right now, fast and cheap, open weights, your usual models.
 - Upgrade hints when a newer release of a model in your roster appears.
 - Retry only the failed answers of a run, then re-run the arbiter.

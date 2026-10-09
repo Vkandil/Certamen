@@ -24,7 +24,7 @@ type TranslationKey =
   | 'settings.title' | 'settings.keyCredits' | 'settings.balance' | 'settings.notLoaded' | 'settings.refreshCredits'
   | 'settings.clearKey' | 'settings.catalogData' | 'settings.refreshCatalog' | 'settings.uiLanguage' | 'settings.theme'
   | 'settings.themeSystem' | 'settings.themeLight' | 'settings.themeDark' | 'settings.deletePrompt' | 'settings.deleteAll'
-  | 'composer.refresh' | 'composer.catalogError' | 'composer.lowCreditsInline' | 'composer.shortcut' | 'composer.examples' | 'composer.example1' | 'composer.example2' | 'composer.example3' | 'models.pickTitle' | 'models.pickSubtitle' | 'preset.best' | 'preset.fast' | 'preset.open' | 'preset.usual' | 'preset.usualEmpty' | 'reason.flagship' | 'reason.pinned' | 'reason.fast' | 'reason.open' | 'reason.usual' | 'reason.manual' | 'age.today' | 'age.days' | 'age.months' | 'models.new' | 'models.swap' | 'models.swapTitle' | 'models.options' | 'models.costHere' | 'models.upgradeNewer' | 'models.upgradeMissing' | 'models.replace' | 'models.replaceAll' | 'models.empty' | 'models.sort' | 'models.sortNewest' | 'models.sortName' | 'models.sortPrice' | 'models.showing' | 'models.loading' | 'certamen.retry' | 'certamen.retryVerdict';
+  | 'composer.refresh' | 'composer.catalogError' | 'composer.lowCreditsInline' | 'composer.shortcut' | 'composer.examples' | 'composer.example1' | 'composer.example2' | 'composer.example3' | 'models.pickTitle' | 'models.pickSubtitle' | 'preset.best' | 'preset.fast' | 'preset.open' | 'preset.usual' | 'preset.usualEmpty' | 'reason.flagship' | 'reason.pinned' | 'reason.fast' | 'reason.open' | 'reason.usual' | 'reason.manual' | 'age.today' | 'age.days' | 'age.months' | 'models.new' | 'models.swap' | 'models.swapTitle' | 'models.options' | 'models.costHere' | 'models.upgradeNewer' | 'models.upgradeMissing' | 'models.replace' | 'models.replaceAll' | 'models.empty' | 'models.sort' | 'models.sortNewest' | 'models.sortName' | 'models.sortPrice' | 'models.showing' | 'models.loading' | 'certamen.retry' | 'certamen.retryVerdict' | 'models.debaters' | 'models.sizeHint' | 'models.addDebater';
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
   en: {
@@ -158,7 +158,10 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     'models.showing': "Showing {shown} of {total}",
     'models.loading': "Loading the OpenRouter catalog…",
     'certamen.retry': "Retry failed ({n})",
-    'certamen.retryVerdict': "Re-run the arbiter"
+    'certamen.retryVerdict': "Re-run the arbiter",
+    'models.debaters': "Debaters",
+    'models.sizeHint': "More debaters bring more viewpoints, but cost grows faster than the count: every model reads all the others.",
+    'models.addDebater': "Add a debater"
   },
   fr: {
     'nav.compose': 'Composer',
@@ -291,7 +294,10 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     'models.showing': "{shown} affichés sur {total}",
     'models.loading': "Chargement du catalogue OpenRouter…",
     'certamen.retry': "Relancer les échecs ({n})",
-    'certamen.retryVerdict': "Relancer l’arbitre"
+    'certamen.retryVerdict': "Relancer l’arbitre",
+    'models.debaters': "Débatteurs",
+    'models.sizeHint': "Plus de débatteurs, c’est plus de points de vue, mais le coût augmente plus vite que leur nombre : chaque modèle lit tous les autres.",
+    'models.addDebater': "Ajouter un débatteur"
   },
   es: {} as Record<TranslationKey, string>,
   de: {} as Record<TranslationKey, string>
@@ -427,7 +433,10 @@ translations.es = {
   'models.showing': "Mostrando {shown} de {total}",
   'models.loading': "Cargando el catálogo de OpenRouter…",
   'certamen.retry': "Reintentar fallidos ({n})",
-  'certamen.retryVerdict': "Repetir el árbitro"
+  'certamen.retryVerdict': "Repetir el árbitro",
+  'models.debaters': "Participantes",
+  'models.sizeHint': "Más participantes aportan más puntos de vista, pero el coste crece más rápido: cada modelo lee a todos los demás.",
+  'models.addDebater': "Añadir un participante"
 };
 translations.de = {
   ...translations.en,
@@ -559,7 +568,10 @@ translations.de = {
   'models.showing': "{shown} von {total} angezeigt",
   'models.loading': "OpenRouter-Katalog wird geladen…",
   'certamen.retry': "Fehlgeschlagene erneut ({n})",
-  'certamen.retryVerdict': "Schiedsrichter erneut starten"
+  'certamen.retryVerdict': "Schiedsrichter erneut starten",
+  'models.debaters': "Teilnehmer",
+  'models.sizeHint': "Mehr Teilnehmer bringen mehr Sichtweisen, aber die Kosten wachsen schneller: jedes Modell liest alle anderen.",
+  'models.addDebater': "Teilnehmer hinzufügen"
 };
 
 export function t(language: AppLanguage | undefined, key: TranslationKey): string {

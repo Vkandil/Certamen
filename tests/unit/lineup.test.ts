@@ -6,6 +6,8 @@ import {
   familyKey,
   flagshipFor,
   isNew,
+  nextSuggestion,
+  resizeRoster,
   randomArbiter,
   reasonFor,
   recommendedArbiter,
@@ -137,6 +139,25 @@ describe('lineup', () => {
     expect(isNew(catalog[1]!, NOW)).toBe(true);
     expect(isNew(catalog[0]!, NOW)).toBe(false);
     expect(sortByNewest(catalog)[0]?.id).toBe('tiny/model-a');
+  });
+
+  it('sizes presets to the requested number of debaters, one lab each', () => {
+    for (const size of [2, 3, 5, 6]) {
+      const ids = buildPreset('best', ctx, size).map((item) => item.model.id);
+      expect(ids).toHaveLength(size);
+      expect(new Set(ids.map((id) => id.split('/')[0])).size).toBe(size);
+    }
+  });
+
+  it('grows a roster with a new lab and shrinks it from the end', () => {
+    const three = buildPreset('best', ctx, 3).map((item) => item.model.id);
+    const next = nextSuggestion(three, ctx);
+    expect(next).toBeDefined();
+    expect(three.map((id) => id.split('/')[0])).not.toContain(next!.model.author);
+    const five = resizeRoster(three, 5, ctx);
+    expect(five.slice(0, 3)).toEqual(three);
+    expect(new Set(five.map((id) => id.split('/')[0])).size).toBe(5);
+    expect(resizeRoster(five, 2, ctx)).toEqual(three.slice(0, 2));
   });
 
   it('still works when the catalog has no release dates', () => {

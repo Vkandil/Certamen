@@ -214,7 +214,7 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
             {tf(uiLanguage, 'composer.lowCreditsInline', { balance: credits.remainingCredits.toFixed(2), cost: formatUsd(expectedUsd) })}
           </p>
         ) : null}
-        <button className="btn-primary h-12 bg-page px-6" disabled={!canLaunch} onClick={() => void launch()}>
+        <button className="btn-primary h-12 px-6 shadow-[0_8px_24px_rgb(27_26_23/0.18)]" style={{ background: 'var(--page)' }} disabled={!canLaunch} onClick={() => void launch()}>
           {modelsLoading ? '...' : expectedUsd !== undefined ? `${t(uiLanguage, 'composer.launch')} · ≈ $${formatUsd(expectedUsd)}` : t(uiLanguage, 'composer.launch')}
         </button>
       </div>

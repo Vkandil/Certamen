@@ -260,6 +260,27 @@ export function randomArbiter(rosterIds: string[], ctx: LineupContext, random: (
   return pool[Math.floor(random() * pool.length)] ?? pool[0];
 }
 
+/** The next debater to add: the best flagship from a lab that is not in the roster yet. */
+export function nextSuggestion(rosterIds: string[], ctx: LineupContext): Suggestion | undefined {
+  const rosterLabs = new Set(rosterIds.map((id) => ctx.models.find((model) => model.id === id)?.author ?? id.split('/')[0]));
+  const fresh = buildPreset('best', ctx, MAJOR_LABS.length + (ctx.featured?.pin?.length ?? 0))
+    .find((item) => !rosterIds.includes(item.model.id) && !rosterLabs.has(item.model.author));
+  if (fresh) return fresh;
+  const any = flagships(ctx).find((model) => !rosterIds.includes(model.id));
+  return any ? { model: any, reason: 'flagship' } : undefined;
+}
+
+/** Resize a roster: shrink from the end, grow with next suggestions (one new lab each time). */
+export function resizeRoster(rosterIds: string[], size: number, ctx: LineupContext): string[] {
+  const next = rosterIds.slice(0, size);
+  while (next.length < size) {
+    const suggestion = nextSuggestion(next, ctx);
+    if (!suggestion) break;
+    next.push(suggestion.model.id);
+  }
+  return next;
+}
+
 /** Catalog order: newest first, models without a date last (by name). */
 export function sortByNewest(models: ModelInfo[]): ModelInfo[] {
   return [...models].sort((a, b) => byNewest(a, b) || a.name.localeCompare(b.name));

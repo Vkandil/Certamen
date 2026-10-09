@@ -5,7 +5,9 @@ import {
   alternativesFor,
   buildPreset,
   isNew,
+  nextSuggestion,
   reasonFor,
+  resizeRoster,
   sortByNewest,
   totalPricePerMillion,
   upgradesFor,
@@ -27,6 +29,8 @@ export interface SelectedModel {
 
 const MAX_SLOTS = 8;
 const PRESETS: PresetKind[] = ['best', 'fast', 'open', 'usual'];
+const SIZES = [2, 3, 4, 5, 6];
+const DEFAULT_SIZE = 4;
 export function ModelSelector({
   models,
   selected,
@@ -46,7 +50,9 @@ export function ModelSelector({
 }) {
   const ctx: LineupContext = useMemo(() => ({ models, featured, usage }), [models, featured, usage]);
   const selectedIds = useMemo(() => selected.map((item) => item.modelId), [selected]);
-  const presets = useMemo(() => Object.fromEntries(PRESETS.map((kind) => [kind, buildPreset(kind, ctx)])) as Record<PresetKind, ReturnType<typeof buildPreset>>, [ctx]);
+  const teamSize = selected.length >= 2 ? selected.length : DEFAULT_SIZE;
+  const presets = useMemo(() => Object.fromEntries(PRESETS.map((kind) => [kind, buildPreset(kind, ctx, teamSize)])) as Record<PresetKind, ReturnType<typeof buildPreset>>, [ctx, teamSize]);
+  const nextDebater = useMemo(() => nextSuggestion(selectedIds, ctx), [ctx, selectedIds]);
   const activePreset = PRESETS.find((kind) => presets[kind].length > 0 && sameIds(presets[kind].map((item) => item.model.id), selectedIds));
   const upgrades = useMemo(() => (models.length ? upgradesFor(selectedIds, ctx) : []), [ctx, models.length, selectedIds]);
   const [swapOpen, setSwapOpen] = useState<number | undefined>();
@@ -58,7 +64,18 @@ export function ModelSelector({
           <div className="section-title">CONTENTIO</div>
           <h2 className="mt-2 font-display text-2xl font-medium">{t(language, 'models.pickTitle')}</h2>
           <p className="mt-1 max-w-[70ch] text-sm text-ink-muted">{t(language, 'models.pickSubtitle')}</p>
-          <div className="mt-5 flex flex-wrap gap-2" role="group" aria-label="Presets">
+          <div className="mt-5 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <span className="text-xs text-ink-muted" title={t(language, 'models.sizeHint')}>{t(language, 'models.debaters')}</span>
+            <div className="flex gap-px bg-hairline-strong p-px" role="group" aria-label={t(language, 'models.debaters')}>
+              {SIZES.map((size) => (
+                <button key={size} type="button" className="chip h-9 w-10 justify-center border-0 px-0 font-mono" aria-pressed={selected.length === size} disabled={models.length === 0} onClick={() => resize(size)}>
+                  {size}
+                </button>
+              ))}
+            </div>
+            <span className="hidden text-xs text-ink-faint md:inline">{t(language, 'models.sizeHint')}</span>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2" role="group" aria-label="Presets">
             {PRESETS.map((kind) => {
               const disabled = presets[kind].length < 2;
               return (
@@ -68,6 +85,7 @@ export function ModelSelector({
                   className="chip"
                   aria-pressed={activePreset === kind}
                   disabled={disabled}
+                  aria-label={t(language, `preset.${kind}`)}
                   title={kind === 'usual' && disabled ? t(language, 'preset.usualEmpty') : undefined}
                   onClick={() => onChange(presets[kind].map((item) => ({ modelId: item.model.id, temperature: 0.7 })))}
                 >
@@ -176,6 +194,13 @@ export function ModelSelector({
                 </div>
               );
             })}
+            {selected.length > 0 && selected.length < MAX_SLOTS && nextDebater ? (
+              <button type="button" className="flex min-h-36 flex-col items-start justify-center gap-1 border border-dashed border-hairline-strong p-4 text-left transition hover:border-ink hover:bg-raised" onClick={() => onChange([...selected, { modelId: nextDebater.model.id, temperature: 0.7 }])}>
+                <span className="font-display text-3xl leading-none text-ink-faint">{String.fromCharCode(65 + selected.length)}</span>
+                <span className="text-sm font-medium">+ {t(language, 'models.addDebater')}</span>
+                <span className="text-xs text-ink-muted">{nextDebater.model.name} · {reasonLine(nextDebater.reason, nextDebater.model, language)}</span>
+              </button>
+            ) : null}
           </div>
           {selected.length === 1 ? <p className="mt-4 border-l-2 border-danger pl-3 text-sm text-danger">{t(language, 'models.minTwo')}</p> : null}
           {selected.length > 5 ? <p className="mt-4 border-l-2 border-ink pl-3 text-sm text-ink-muted">{t(language, 'models.costWarning')}</p> : null}
@@ -185,6 +210,13 @@ export function ModelSelector({
       <Catalog models={models} selectedIds={selectedIds} language={language} onAdd={add} />
     </div>
   );
+
+  function resize(size: number) {
+    setSwapOpen(undefined);
+    const preset = activePreset && activePreset !== 'usual' ? buildPreset(activePreset, ctx, size) : [];
+    const ids = preset.length === size ? preset.map((item) => item.model.id) : resizeRoster(selectedIds, size, ctx);
+    onChange(ids.map((id) => selected.find((item) => item.modelId === id) ?? { modelId: id, temperature: 0.7 }));
+  }
 
   function add(model: ModelInfo) {
     if (selected.length >= MAX_SLOTS) return;
