@@ -50,6 +50,57 @@ export async function runCertamen(certamen: Certamen, client: LlmClient, hooks: 
   return finalize(certamen, finalStatus, budget.exhausted ? 'budget_exceeded' : undefined, hooks);
 }
 
+/** Slots whose latest answer failed (timeout, provider error...), i.e. what a retry would re-run. */
+export function retryableSlots(certamen: Certamen): string[] {
+  const latest = latestBySlot(certamen.responsiones);
+  return certamen.contendentes
+    .filter((item) => item.role === 'contendens')
+    .map((item) => item.slot)
+    .filter((slot) => {
+      const responsio = latest.get(slot);
+      return !responsio || succeeded([responsio]).length === 0;
+    });
+}
+
+/** True when a finished run has failed answers or no usable verdict. */
+export function canRetry(certamen: Certamen): boolean {
+  if (!['completed', 'partial', 'failed', 'aborted'].includes(certamen.status)) return false;
+  const verdictMissing = certamen.config.determinatio && (!certamen.determinatio || certamen.determinatio.status !== 'done');
+  return retryableSlots(certamen).length > 0 || verdictMissing;
+}
+
+/**
+ * Re-runs only the failed answers (each in the round where it failed, with the same peer
+ * answers it would have seen), then re-runs the arbiter on the best answer of every slot.
+ * The spend so far counts against the budget cap.
+ */
+export async function retryFailed(certamen: Certamen, client: LlmClient, hooks: ProtocolHooks, options: RunOptions): Promise<Certamen> {
+  certamen.status = 'running';
+  certamen.failureReason = undefined;
+  await hooks.onCertamen?.(certamen);
+  const limit = pLimit(certamen.config.maxConcurrency);
+  const budget = new BudgetGuard(Math.max(0, certamen.config.budgetCapUsd - certamen.totalCostUsd), hooks.onBudgetExceeded);
+  const latest = latestBySlot(certamen.responsiones);
+  const tasks = retryableSlots(certamen).map((slot) => limit(async () => {
+    const contendens = contenderBySlot(certamen, slot);
+    if (!contendens || !budget.canStartCall() || options.signal?.aborted) return;
+    const roundIndex = latest.get(slot)?.roundIndex ?? 0;
+    const previous = roundIndex > 0 ? succeeded([...latestBySlot(certamen.responsiones.filter((item) => item.roundIndex === roundIndex - 1)).values()]) : [];
+    const responsio = await runOne(certamen, contendens, roundIndex, previous, client, budget, hooks, options);
+    certamen.responsiones = [...certamen.responsiones.filter((item) => item.id !== responsio.id), responsio];
+    await hooks.onCertamen?.(certamen);
+  }));
+  await Promise.allSettled(tasks);
+
+  const ok = succeeded([...bestBySlot(certamen.responsiones).values()]);
+  if (certamen.config.determinatio && ok.length >= certamen.config.minQuorum && !budget.exhausted && !options.signal?.aborted) {
+    await runDeterminatio(certamen, ok, client, budget, hooks, options);
+  }
+  const verdictOk = !certamen.config.determinatio || certamen.determinatio?.status === 'done';
+  const status = options.signal?.aborted ? 'aborted' : ok.length < certamen.config.minQuorum ? 'failed' : retryableSlots(certamen).length === 0 && verdictOk ? 'completed' : 'partial';
+  return finalize(certamen, status, budget.exhausted ? 'budget_exceeded' : ok.length < certamen.config.minQuorum ? 'quorum_not_met' : undefined, hooks);
+}
+
 export function buildChatRequest(model: ModelInfo | undefined, contendens: Contendens, messages: ChatMessage[], certamen: Certamen): ChatRequest {
   const supported = new Set(model?.supportedParameters ?? []);
   const request: ChatRequest = {
@@ -260,6 +311,23 @@ function failedSkeleton(certamen: Certamen, contendens: Contendens, roundIndex: 
     endedAt: Date.now(),
     requestSnapshot: requestSnapshot ?? { model: contendens.modelId, messages: [], stream: true }
   };
+}
+
+/** Latest answer per slot (highest round, then most recent attempt). */
+function latestBySlot(responsiones: Responsio[]): Map<string, Responsio> {
+  const map = new Map<string, Responsio>();
+  for (const item of responsiones) {
+    const previous = map.get(item.slot);
+    if (!previous || item.roundIndex > previous.roundIndex || (item.roundIndex === previous.roundIndex && item.startedAt >= previous.startedAt)) map.set(item.slot, item);
+  }
+  return map;
+}
+
+/** Most advanced usable answer per slot, falling back to the latest attempt. */
+function bestBySlot(responsiones: Responsio[]): Map<string, Responsio> {
+  const usable = latestBySlot(succeeded(responsiones));
+  const latest = latestBySlot(responsiones);
+  return new Map([...latest].map(([slot, item]) => [slot, usable.get(slot) ?? item]));
 }
 
 function succeeded(responsiones: Responsio[]): Responsio[] {

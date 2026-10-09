@@ -63,6 +63,23 @@ export function estimateCost(certamen: Certamen, models: ModelInfo[]): CostEstim
   };
 }
 
+/** Indicative cost of each contender for this question, using that model's own prices. */
+export function estimatePerModel(certamen: Certamen, models: ModelInfo[]): Record<string, number> {
+  const contendentes = certamen.contendentes.filter((item) => item.role === 'contendens');
+  const n = Math.max(1, contendentes.length);
+  const quaestioTokens = estimateTokens(`${certamen.quaestio.text}\n${certamen.quaestio.context ?? ''}`);
+  const wordTarget = effectiveWordTarget(certamen.config.responseWordTarget, certamen.config.useWordTarget);
+  const disputatio = certamen.config.rounds > 0;
+  const inputTokens = 700 + quaestioTokens + (disputatio ? 900 + quaestioTokens + wordTarget * 1.4 * n : 0);
+  const outputTokens = wordTarget * 1.4 + (disputatio ? wordTarget * 1.9 : 0);
+  const out: Record<string, number> = {};
+  for (const item of contendentes) {
+    const model = models.find((candidate) => candidate.id === item.modelId);
+    if (model) out[item.modelId] = inputTokens * model.pricing.promptPerToken + outputTokens * model.pricing.completionPerToken;
+  }
+  return out;
+}
+
 export function computeMaxTokens(model: ModelInfo | undefined, wordTarget: number, requested?: number): number {
   const target = requested ?? Math.ceil(wordTarget * 2.2);
   const providerCap = model?.maxCompletionTokens ?? target;

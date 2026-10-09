@@ -1,3 +1,6 @@
 node_modules/
 out/
 work/
+x-cut/out/
+x-cut/work/
+__pycache__/

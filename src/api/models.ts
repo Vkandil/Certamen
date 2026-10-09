@@ -1,15 +1,8 @@
 import { OPENROUTER_BASE_URL, openRouterAttribution } from './attribution';
+import { isTextModel, normalizeModel, type ModelRaw } from '../domain/catalog';
 import type { ModelInfo } from '../domain/types';
 
-export interface ModelRaw {
-  id: string;
-  name?: string;
-  context_length?: number;
-  pricing?: { prompt?: string; completion?: string };
-  supported_parameters?: string[];
-  architecture?: { input_modalities?: string[]; output_modalities?: string[] };
-  top_provider?: { max_completion_tokens?: number | null; context_length?: number };
-}
+export { isTextModel, normalizeModel, type ModelRaw };
 
 const BASE = OPENROUTER_BASE_URL;
 
@@ -20,32 +13,9 @@ export async function fetchModels(apiKey?: string): Promise<ModelInfo[]> {
       ...openRouterAttribution()
     }
   });
-  if (!response.ok) throw new Error(`Catalogue OpenRouter indisponible (${response.status}).`);
+  if (!response.ok) throw new Error(`OpenRouter catalog unavailable (${response.status}).`);
   const json = await response.json() as { data?: ModelRaw[] };
   return (json.data ?? []).map(normalizeModel).filter(isTextModel).sort((a, b) => a.name.localeCompare(b.name));
-}
-
-export function normalizeModel(raw: ModelRaw): ModelInfo {
-  const inputModalities = raw.architecture?.input_modalities ?? ['text'];
-  const outputModalities = raw.architecture?.output_modalities ?? ['text'];
-  return {
-    id: raw.id,
-    name: raw.name ?? raw.id,
-    contextLength: raw.top_provider?.context_length ?? raw.context_length ?? 8192,
-    maxCompletionTokens: raw.top_provider?.max_completion_tokens ?? null,
-    pricing: {
-      promptPerToken: Number(raw.pricing?.prompt ?? 0),
-      completionPerToken: Number(raw.pricing?.completion ?? 0)
-    },
-    supportedParameters: raw.supported_parameters ?? [],
-    inputModalities,
-    outputModalities,
-    author: raw.id.split('/')[0] ?? 'unknown'
-  };
-}
-
-export function isTextModel(model: ModelInfo): boolean {
-  return model.inputModalities.includes('text') && model.outputModalities.includes('text');
 }
 
 export function formatPricePerMillion(pricePerToken: number): string {

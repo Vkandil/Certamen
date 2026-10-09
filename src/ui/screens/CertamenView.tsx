@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { canRetry, retryableSlots } from '../../domain/protocol';
 import { countWords } from '../../domain/tokens';
 import type { Certamen, Responsio } from '../../domain/types';
 import { exportJson, exportMarkdown } from '../../export/markdown';
@@ -7,12 +8,14 @@ import { useRunStore } from '../../store/runStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { SafeMarkdown } from '../components/SafeMarkdown';
 import { StatusPill } from '../components/StatusPill';
-import { t } from '../i18n';
+import { t, tf } from '../i18n';
 
 export function CertamenView() {
   const current = useRunStore((state) => state.current);
   const running = useRunStore((state) => state.running);
   const abort = useRunStore((state) => state.abort);
+  const retry = useRunStore((state) => state.retry);
+  const apiKey = useSettingsStore((state) => state.apiKey);
   const uiLanguage = useSettingsStore((state) => state.uiLanguage);
   const latestBySlot = useMemo(() => {
     const map = new Map<string, Responsio>();
@@ -37,6 +40,11 @@ export function CertamenView() {
           </div>
           <div className="flex flex-wrap gap-3">
             {running ? <button className="btn-danger" onClick={() => abort()}>{t(uiLanguage, 'certamen.stop')}</button> : null}
+            {!running && apiKey && canRetry(current) ? (
+              <button className="btn-primary" onClick={() => void retry(apiKey)}>
+                {retryableSlots(current).length > 0 ? tf(uiLanguage, 'certamen.retry', { n: retryableSlots(current).length }) : t(uiLanguage, 'certamen.retryVerdict')}
+              </button>
+            ) : null}
             {finished ? (
               <>
                 <button className="btn-secondary" onClick={() => download('certamen.md', exportMarkdown(current))}>{t(uiLanguage, 'certamen.markdown')}</button>
@@ -63,11 +71,11 @@ function Arena({ certamen, latestBySlot, language }: { certamen: Certamen; lates
         <span className="section-title">ARENA</span>
         <span className="ml-3">Round {round} - {round >= 1 ? t(language, 'certamen.disputatio') : t(language, 'certamen.initial')}</span>
       </div>
-      <div className="grid gap-px bg-hairline lg:grid-cols-3">
+      <div className={`grid gap-px bg-hairline ${arenaColumns(contenders.length)}`}>
         {contenders.map((contendens, index) => {
           const responsio = latestBySlot.get(contendens.slot);
           return (
-            <article key={contendens.slot} className="flex min-h-96 flex-col bg-surface">
+            <article key={contendens.slot} className={`flex min-h-96 flex-col bg-surface ${arenaCell(contenders.length, index)}`}>
               <div className="participant-bar h-1" data-slot={String(index)} />
               <header className="border-b border-hairline bg-raised p-4">
                 <div className="flex items-start justify-between gap-3">
@@ -201,4 +209,22 @@ async function copyPermalink(certamen: Certamen) {
     return;
   }
   await navigator.clipboard.writeText(link);
+}
+
+/** 2-3 side by side, 4 as a 2x2, 5 as 3 + 2, 6 as 3 + 3, 7 as 4 + 3, 8 as 4 + 4: rows are always full. */
+function arenaColumns(count: number): string {
+  if (count <= 2) return 'md:grid-cols-2';
+  if (count === 3) return 'lg:grid-cols-3';
+  if (count === 4) return 'md:grid-cols-2';
+  if (count === 5) return 'md:grid-cols-2 lg:grid-cols-6';
+  if (count === 6) return 'md:grid-cols-2 lg:grid-cols-3';
+  if (count === 7) return 'md:grid-cols-2 lg:grid-cols-12';
+  return 'md:grid-cols-2 lg:grid-cols-4';
+}
+
+function arenaCell(count: number, index: number): string {
+  const lastAlone = count % 2 === 1 && index === count - 1 ? 'md:col-span-2' : '';
+  if (count === 5) return `${lastAlone} ${index < 3 ? 'lg:col-span-2' : 'lg:col-span-3'}`;
+  if (count === 7) return `${lastAlone} ${index < 4 ? 'lg:col-span-3' : 'lg:col-span-4'}`;
+  return count === 3 ? '' : lastAlone;
 }

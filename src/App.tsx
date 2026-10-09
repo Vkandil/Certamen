@@ -22,6 +22,7 @@ export default function App() {
   const loadSettings = useSettingsStore((state) => state.load);
   const loadModels = useRunStore((state) => state.loadModels);
   const loadHistory = useRunStore((state) => state.loadHistory);
+  const loadLineupData = useRunStore((state) => state.loadLineupData);
   const current = useRunStore((state) => state.current);
 
   useEffect(() => {
@@ -40,6 +41,10 @@ export default function App() {
   useEffect(() => {
     if (apiKey) void loadModels(apiKey);
   }, [apiKey, loadModels]);
+
+  useEffect(() => {
+    void loadLineupData();
+  }, [loadLineupData]);
 
   useEffect(() => {
     const onPop = () => setRoute(routeFromLocation());

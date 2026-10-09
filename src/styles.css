@@ -61,6 +61,19 @@ select {
   @apply btn hover:bg-ink hover:text-page;
 }
 
+/* one-click choices (team size, model presets, example questions); pressed = current choice.
+   In the components layer so utilities can adjust size and spacing. */
+@layer components {
+  .chip {
+    @apply inline-flex min-h-9 items-center border border-hairline-strong bg-surface px-3 py-1 text-sm text-ink transition hover:bg-ink hover:text-page disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-surface disabled:hover:text-ink;
+    border-radius: var(--radius);
+  }
+
+  .chip[aria-pressed='true'] {
+    @apply border-ink bg-ink text-page;
+  }
+}
+
 .btn-danger {
   @apply btn border-danger text-danger hover:bg-danger hover:text-page;
 }
@@ -139,17 +152,33 @@ select {
   background: var(--p-4);
 }
 
+/* E-H: hatched variants of A-D, so every slot stays distinguishable */
 .participant-chip[data-slot='4'],
-.participant-bar[data-slot='4'],
+.participant-bar[data-slot='4'] {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 3px, rgb(255 255 255 / 0.32) 3px 5px),
+    var(--p-1);
+}
+
 .participant-chip[data-slot='5'],
-.participant-bar[data-slot='5'],
+.participant-bar[data-slot='5'] {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 3px, rgb(255 255 255 / 0.32) 3px 5px),
+    var(--p-2);
+}
+
 .participant-chip[data-slot='6'],
-.participant-bar[data-slot='6'],
+.participant-bar[data-slot='6'] {
+  background:
+    repeating-linear-gradient(45deg, transparent 0 3px, rgb(255 255 255 / 0.32) 3px 5px),
+    var(--p-3);
+}
+
 .participant-chip[data-slot='7'],
 .participant-bar[data-slot='7'] {
   background:
-    repeating-linear-gradient(45deg, transparent 0 3px, rgb(255 255 255 / 0.28) 3px 5px),
-    var(--p-1);
+    repeating-linear-gradient(45deg, transparent 0 3px, rgb(255 255 255 / 0.32) 3px 5px),
+    var(--p-4);
 }
 
 .status-square {
