@@ -24,7 +24,7 @@ type TranslationKey =
   | 'settings.title' | 'settings.keyCredits' | 'settings.balance' | 'settings.notLoaded' | 'settings.refreshCredits'
   | 'settings.clearKey' | 'settings.catalogData' | 'settings.refreshCatalog' | 'settings.uiLanguage' | 'settings.theme'
   | 'settings.themeSystem' | 'settings.themeLight' | 'settings.themeDark' | 'settings.deletePrompt' | 'settings.deleteAll'
-  | 'composer.refresh' | 'composer.catalogError' | 'composer.lowCreditsInline' | 'composer.shortcut' | 'composer.examples' | 'composer.example1' | 'composer.example2' | 'composer.example3' | 'models.pickTitle' | 'models.pickSubtitle' | 'preset.best' | 'preset.fast' | 'preset.open' | 'preset.usual' | 'preset.usualEmpty' | 'reason.flagship' | 'reason.pinned' | 'reason.fast' | 'reason.open' | 'reason.usual' | 'reason.manual' | 'age.today' | 'age.days' | 'age.months' | 'models.new' | 'models.swap' | 'models.swapTitle' | 'models.options' | 'models.costHere' | 'models.upgradeNewer' | 'models.upgradeMissing' | 'models.replace' | 'models.replaceAll' | 'models.empty' | 'models.sort' | 'models.sortNewest' | 'models.sortName' | 'models.sortPrice' | 'models.showing' | 'models.loading' | 'certamen.retry' | 'certamen.retryVerdict' | 'models.debaters' | 'models.sizeHint' | 'models.addDebater';
+  | 'composer.refresh' | 'composer.catalogError' | 'composer.lowCreditsInline' | 'composer.shortcut' | 'composer.examples' | 'composer.example1' | 'composer.example2' | 'composer.example3' | 'models.pickTitle' | 'models.pickSubtitle' | 'preset.best' | 'preset.fast' | 'preset.open' | 'preset.usual' | 'preset.usualEmpty' | 'reason.flagship' | 'reason.pinned' | 'reason.fast' | 'reason.open' | 'reason.usual' | 'reason.manual' | 'age.today' | 'age.days' | 'age.months' | 'models.new' | 'models.swap' | 'models.swapTitle' | 'models.options' | 'models.costHere' | 'models.upgradeNewer' | 'models.upgradeMissing' | 'models.replace' | 'models.replaceAll' | 'models.empty' | 'models.sort' | 'models.sortNewest' | 'models.sortName' | 'models.sortPrice' | 'models.showing' | 'models.loading' | 'certamen.retry' | 'certamen.retryVerdict' | 'models.debaters' | 'models.sizeHint' | 'models.addDebater' | 'composer.addContext' | 'composer.removeContext' | 'composer.contextPlaceholder' | 'composer.questionPlaceholder' | 'composer.debateRound' | 'composer.debateRoundHint' | 'composer.answerLength' | 'composer.lengthShort' | 'composer.lengthStandard' | 'composer.lengthLong' | 'composer.lengthFree' | 'composer.budgetHint' | 'composer.arbiterHint' | 'composer.moreSettings' | 'composer.estimateRange' | 'composer.chooseArbiter' | 'composer.budgetTooLow' | 'composer.raiseBudget';
 
 const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
   en: {
@@ -161,7 +161,25 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     'certamen.retryVerdict': "Re-run the arbiter",
     'models.debaters': "Debaters",
     'models.sizeHint': "More debaters bring more viewpoints, but cost grows faster than the count: every model reads all the others.",
-    'models.addDebater': "Add a debater"
+    'models.addDebater': "Add a debater",
+    'composer.addContext': "+ Add context (optional)",
+    'composer.removeContext': "Remove context",
+    'composer.contextPlaceholder': "Constraints, numbers, links… anything the models should know.",
+    'composer.questionPlaceholder': "Ask the question you want several AIs to debate…",
+    'composer.debateRound': "Debate round",
+    'composer.debateRoundHint': "Models read each other’s anonymized answers and revise. Recommended.",
+    'composer.answerLength': "Answer length",
+    'composer.lengthShort': "Short · ~300 words",
+    'composer.lengthStandard': "Standard · ~600 words",
+    'composer.lengthLong': "Long · ~1,000 words",
+    'composer.lengthFree': "Let the models decide",
+    'composer.budgetHint': "The run stops before going over this amount.",
+    'composer.arbiterHint': "Writes the final verdict. Never one of the debaters.",
+    'composer.moreSettings': "More settings",
+    'composer.estimateRange': "Estimated {low} – {high} USD (±40%)",
+    'composer.chooseArbiter': "Choose the arbiter",
+    'composer.budgetTooLow': "The estimate is above your budget: the run may stop before the verdict.",
+    'composer.raiseBudget': "Raise to ${amount}"
   },
   fr: {
     'nav.compose': 'Composer',
@@ -297,7 +315,25 @@ const translations: Record<AppLanguage, Record<TranslationKey, string>> = {
     'certamen.retryVerdict': "Relancer l’arbitre",
     'models.debaters': "Débatteurs",
     'models.sizeHint': "Plus de débatteurs, c’est plus de points de vue, mais le coût augmente plus vite que leur nombre : chaque modèle lit tous les autres.",
-    'models.addDebater': "Ajouter un débatteur"
+    'models.addDebater': "Ajouter un débatteur",
+    'composer.addContext': "+ Ajouter du contexte (optionnel)",
+    'composer.removeContext': "Retirer le contexte",
+    'composer.contextPlaceholder': "Contraintes, chiffres, liens… tout ce que les modèles doivent savoir.",
+    'composer.questionPlaceholder': "Posez la question que plusieurs IA vont débattre…",
+    'composer.debateRound': "Round de débat",
+    'composer.debateRoundHint': "Les modèles lisent les réponses anonymisées des autres et révisent. Recommandé.",
+    'composer.answerLength': "Longueur des réponses",
+    'composer.lengthShort': "Courte · ~300 mots",
+    'composer.lengthStandard': "Standard · ~600 mots",
+    'composer.lengthLong': "Longue · ~1 000 mots",
+    'composer.lengthFree': "Laisser les modèles décider",
+    'composer.budgetHint': "Le run s’arrête avant de dépasser ce montant.",
+    'composer.arbiterHint': "Rédige le verdict final. Jamais un des débatteurs.",
+    'composer.moreSettings': "Plus de réglages",
+    'composer.estimateRange': "Estimé entre {low} et {high} USD (±40 %)",
+    'composer.chooseArbiter': "Choisir l’arbitre",
+    'composer.budgetTooLow': "L’estimation dépasse votre budget : le run risque de s’arrêter avant le verdict.",
+    'composer.raiseBudget': "Monter à ${amount}"
   },
   es: {} as Record<TranslationKey, string>,
   de: {} as Record<TranslationKey, string>
@@ -436,7 +472,25 @@ translations.es = {
   'certamen.retryVerdict': "Repetir el árbitro",
   'models.debaters': "Participantes",
   'models.sizeHint': "Más participantes aportan más puntos de vista, pero el coste crece más rápido: cada modelo lee a todos los demás.",
-  'models.addDebater': "Añadir un participante"
+  'models.addDebater': "Añadir un participante",
+  'composer.addContext': "+ Añadir contexto (opcional)",
+  'composer.removeContext': "Quitar el contexto",
+  'composer.contextPlaceholder': "Restricciones, cifras, enlaces… todo lo que los modelos deben saber.",
+  'composer.questionPlaceholder': "Haz la pregunta que varias IA debatirán…",
+  'composer.debateRound': "Ronda de debate",
+  'composer.debateRoundHint': "Los modelos leen las respuestas anónimas de los demás y revisan. Recomendado.",
+  'composer.answerLength': "Longitud de las respuestas",
+  'composer.lengthShort': "Corta · ~300 palabras",
+  'composer.lengthStandard': "Estándar · ~600 palabras",
+  'composer.lengthLong': "Larga · ~1.000 palabras",
+  'composer.lengthFree': "Que decidan los modelos",
+  'composer.budgetHint': "La ejecución se detiene antes de superar este importe.",
+  'composer.arbiterHint': "Redacta el veredicto final. Nunca uno de los participantes.",
+  'composer.moreSettings': "Más ajustes",
+  'composer.estimateRange': "Estimado {low} – {high} USD (±40 %)",
+  'composer.chooseArbiter': "Elegir el árbitro",
+  'composer.budgetTooLow': "La estimación supera tu presupuesto: la ejecución puede detenerse antes del veredicto.",
+  'composer.raiseBudget': "Subir a ${amount}"
 };
 translations.de = {
   ...translations.en,
@@ -571,7 +625,25 @@ translations.de = {
   'certamen.retryVerdict': "Schiedsrichter erneut starten",
   'models.debaters': "Teilnehmer",
   'models.sizeHint': "Mehr Teilnehmer bringen mehr Sichtweisen, aber die Kosten wachsen schneller: jedes Modell liest alle anderen.",
-  'models.addDebater': "Teilnehmer hinzufügen"
+  'models.addDebater': "Teilnehmer hinzufügen",
+  'composer.addContext': "+ Kontext hinzufügen (optional)",
+  'composer.removeContext': "Kontext entfernen",
+  'composer.contextPlaceholder': "Vorgaben, Zahlen, Links… alles, was die Modelle wissen sollten.",
+  'composer.questionPlaceholder': "Stelle die Frage, die mehrere KIs debattieren sollen…",
+  'composer.debateRound': "Debattenrunde",
+  'composer.debateRoundHint': "Die Modelle lesen die anonymisierten Antworten der anderen und überarbeiten. Empfohlen.",
+  'composer.answerLength': "Antwortlänge",
+  'composer.lengthShort': "Kurz · ~300 Wörter",
+  'composer.lengthStandard': "Standard · ~600 Wörter",
+  'composer.lengthLong': "Lang · ~1.000 Wörter",
+  'composer.lengthFree': "Die Modelle entscheiden lassen",
+  'composer.budgetHint': "Der Lauf stoppt, bevor dieser Betrag überschritten wird.",
+  'composer.arbiterHint': "Schreibt das Urteil. Nie einer der Teilnehmer.",
+  'composer.moreSettings': "Weitere Einstellungen",
+  'composer.estimateRange': "Geschätzt {low} – {high} USD (±40 %)",
+  'composer.chooseArbiter': "Schiedsrichter wählen",
+  'composer.budgetTooLow': "Die Schätzung liegt über deinem Budget: der Lauf kann vor dem Urteil stoppen.",
+  'composer.raiseBudget': "Auf ${amount} erhöhen"
 };
 
 export function t(language: AppLanguage | undefined, key: TranslationKey): string {

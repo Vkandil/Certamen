@@ -5,7 +5,7 @@
 //   node --experimental-strip-types scripts/update-featured.mjs [--catalog models.json]
 import { readFile, writeFile } from 'node:fs/promises';
 import { isTextModel, normalizeModel } from '../src/domain/catalog.ts';
-import { buildPreset } from '../src/domain/lineup.ts';
+import { buildPreset, flagshipFor, MAJOR_LABS } from '../src/domain/lineup.ts';
 
 const FILE = new URL('../public/featured-models.json', import.meta.url);
 const catalogArg = process.argv.indexOf('--catalog');
@@ -30,6 +30,8 @@ const overlay = {
 };
 const ctx = { models, featured: overlay };
 const snapshot = Object.fromEntries(['best', 'fast', 'open'].map((kind) => [kind, buildPreset(kind, ctx).map((item) => item.model.id)]));
+// per-lab picks, so a reviewer can spot a wrong flagship at a glance
+snapshot.flagships = Object.fromEntries(MAJOR_LABS.map((lab) => [lab, flagshipFor(models, lab, overlay)?.id ?? null]).filter(([, id]) => id));
 
 const next = { updatedAt: current.updatedAt, ...overlay, snapshot };
 if (JSON.stringify(next) === JSON.stringify(current)) {

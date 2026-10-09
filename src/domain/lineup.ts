@@ -5,7 +5,9 @@
 import type { ModelInfo } from './types';
 
 /** Labs we suggest by default, in tie-break order. One lab per slot keeps the debate diverse. */
-export const MAJOR_LABS = ['anthropic', 'openai', 'google', 'x-ai', 'deepseek', 'moonshotai', 'qwen', 'mistralai', 'z-ai', 'meta-llama'];
+/** Frontier labs people expect to see first; a fresh release only reorders labs within the same tier. */
+export const TOP_LABS = ['anthropic', 'openai', 'google', 'x-ai'];
+export const MAJOR_LABS = [...TOP_LABS, 'deepseek', 'moonshotai', 'qwen', 'mistralai', 'z-ai', 'meta-llama'];
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 export const NEW_WINDOW_DAYS = 30;
@@ -50,7 +52,11 @@ export interface Upgrade {
   kind: 'newer' | 'missing';
 }
 
-const VARIANT = /(^|[-_ .:/])(mini|nano|lite|tiny|micro|small|haiku|embed(ding)?|guard|moderation|audio|tts|realtime|search|image|vision|ocr|distill)([-_ .:]|$)/i;
+const VARIANT = /(^|[-_ .:/])(mini|nano|lite|tiny|micro|small|haiku|embed(ding)?|moderation|audio|tts|realtime|search|image|vision|ocr|distill)([-_ .:]|$)/i;
+/** Safety classifiers (llama-guard, gpt-oss-safeguard...) are not debaters. */
+const CLASSIFIER = /guard|moderat|classif/i;
+/** Premium/priority SKUs of a model that also exists without the suffix (gpt-6.1-pro, claude-opus-5-fast). */
+const PREMIUM_SUFFIX = /-(pro|fast|max|turbo|high)$/i;
 
 export function totalPricePerMillion(model: ModelInfo): number {
   return (model.pricing.promptPerToken + model.pricing.completionPerToken) * 1_000_000;
@@ -65,9 +71,9 @@ export function isNew(model: ModelInfo, now = Date.now()): boolean {
   return age !== undefined && age <= NEW_WINDOW_DAYS;
 }
 
-/** Router aliases (~vendor/...-latest) and free mirrors duplicate real models. */
+/** Router aliases (~vendor/...-latest) and ":" variants (:free, :batch, :extended, :thinking...) duplicate real models. */
 function isAliasOrFree(model: ModelInfo): boolean {
-  return model.id.startsWith('~') || model.id.endsWith(':free') || model.id.startsWith('openrouter/');
+  return model.id.startsWith('~') || model.id.includes(':') || model.id.startsWith('openrouter/');
 }
 
 function isPriced(model: ModelInfo): boolean {
@@ -75,7 +81,14 @@ function isPriced(model: ModelInfo): boolean {
 }
 
 function suggestible(model: ModelInfo, featured?: FeaturedOverlay): boolean {
-  return !isAliasOrFree(model) && isPriced(model) && !(featured?.exclude ?? []).includes(model.id);
+  return !isAliasOrFree(model) && isPriced(model) && !CLASSIFIER.test(model.id) && !(featured?.exclude ?? []).includes(model.id);
+}
+
+/** True for "x-pro" / "x-fast" when plain "x" is also listed: the plain model is the one to debate with. */
+function hasPlainSibling(model: ModelInfo, pool: ModelInfo[]): boolean {
+  if (!PREMIUM_SUFFIX.test(model.id)) return false;
+  const plain = model.id.replace(PREMIUM_SUFFIX, '');
+  return pool.some((other) => other.id === plain);
 }
 
 export function isVariant(model: ModelInfo): boolean {
@@ -92,7 +105,8 @@ function byNewest(a: ModelInfo, b: ModelInfo): number {
 
 /** The most capable recent model of a lab: priciest non-variant release in the lab's recent window. */
 export function flagshipFor(models: ModelInfo[], lab: string, featured?: FeaturedOverlay): ModelInfo | undefined {
-  const pool = models.filter((model) => model.author === lab && suggestible(model, featured) && !isVariant(model));
+  const labModels = models.filter((model) => model.author === lab && suggestible(model, featured) && !isVariant(model));
+  const pool = labModels.filter((model) => !hasPlainSibling(model, labModels));
   if (pool.length === 0) return undefined;
   const latest = newest(pool);
   const recent = latest > 0 ? pool.filter((model) => (model.createdAt ?? 0) >= latest - FLAGSHIP_WINDOW_DAYS * DAY_MS) : pool;
@@ -124,13 +138,14 @@ export function rankedLabs(ctx: LineupContext): string[] {
   const present = new Set(ctx.models.map((model) => model.author));
   const base = ctx.featured?.labs?.length ? ctx.featured.labs : MAJOR_LABS;
   const labs = base.filter((lab) => present.has(lab));
+  if (ctx.featured?.labs?.length) return labs;
   const fresh = (lab: string) => {
     const flagship = flagshipFor(ctx.models, lab, ctx.featured);
     const age = flagship ? ageDays(flagship, now) : undefined;
     return age !== undefined && age <= FRESH_LAB_DAYS;
   };
-  if (ctx.featured?.labs?.length) return labs;
-  return [...labs].sort((a, b) => Number(fresh(b)) - Number(fresh(a)) || labs.indexOf(a) - labs.indexOf(b));
+  const tier = (lab: string) => (TOP_LABS.includes(lab) ? 0 : 1);
+  return [...labs].sort((a, b) => tier(a) - tier(b) || Number(fresh(b)) - Number(fresh(a)) || labs.indexOf(a) - labs.indexOf(b));
 }
 
 export function usualModels(ctx: LineupContext, count = 4): ModelInfo[] {
@@ -240,6 +255,18 @@ export function flagships(ctx: LineupContext): ModelInfo[] {
 }
 
 /** The strongest model that is not debating; never an arbitrary catalog entry. */
+/** Strong models of the frontier labs: each lab's top two recent non-variant releases, interleaved by rank. */
+function frontierPool(ctx: LineupContext): ModelInfo[] {
+  const perLab = rankedLabs(ctx)
+    .filter((lab) => TOP_LABS.includes(lab) || (ctx.featured?.labs ?? []).includes(lab))
+    .map((lab) => {
+      const first = flagshipFor(ctx.models, lab, ctx.featured);
+      const rest = first ? flagshipFor(ctx.models.filter((model) => model.id !== first.id), lab, ctx.featured) : undefined;
+      return [first, rest].filter((model): model is ModelInfo => !!model);
+    });
+  return [0, 1].flatMap((rank) => perLab.map((models) => models[rank]).filter((model): model is ModelInfo => !!model));
+}
+
 function majorFlagships(ctx: LineupContext): ModelInfo[] {
   return flagships(ctx).filter((model) => MAJOR_LABS.includes(model.author) || (ctx.featured?.labs ?? []).includes(model.author) || (ctx.featured?.pin ?? []).includes(model.id));
 }
@@ -247,7 +274,9 @@ function majorFlagships(ctx: LineupContext): ModelInfo[] {
 export function recommendedArbiter(rosterIds: string[], ctx: LineupContext): ModelInfo | undefined {
   const pool = flagships(ctx);
   const major = majorFlagships(ctx);
-  return major.find((model) => !rosterIds.includes(model.id))
+  // a frontier model that is not debating (e.g. Opus when Fable debates) beats a second-tier lab
+  return [...pinnedModels(ctx), ...frontierPool(ctx)].find((model) => !rosterIds.includes(model.id))
+    ?? major.find((model) => !rosterIds.includes(model.id))
     ?? pool.find((model) => !rosterIds.includes(model.id))
     ?? major[0]
     ?? [...ctx.models].filter((model) => suggestible(model, ctx.featured)).sort((a, b) => totalPricePerMillion(b) - totalPricePerMillion(a))[0];

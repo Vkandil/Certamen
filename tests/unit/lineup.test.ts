@@ -135,6 +135,13 @@ describe('lineup', () => {
     }
   });
 
+  it('picks a frontier model that is not debating as arbiter, even when all frontier labs debate', () => {
+    const roster = buildPreset('best', ctx).map((item) => item.model.id);
+    expect(roster).toContain('anthropic/claude-opus-5.5');
+    // Sonnet 5.5 is Anthropic's second-strongest recent model: a better judge than a second-tier lab
+    expect(recommendedArbiter(roster, ctx)?.id).toBe('anthropic/claude-sonnet-5.5');
+  });
+
   it('flags new models and sorts the catalog newest first', () => {
     expect(isNew(catalog[1]!, NOW)).toBe(true);
     expect(isNew(catalog[0]!, NOW)).toBe(false);
@@ -158,6 +165,34 @@ describe('lineup', () => {
     expect(five.slice(0, 3)).toEqual(three);
     expect(new Set(five.map((id) => id.split('/')[0])).size).toBe(5);
     expect(resizeRoster(five, 2, ctx)).toEqual(three.slice(0, 2));
+  });
+
+  it('keeps the frontier labs first even when a smaller lab shipped more recently', () => {
+    const hotSmallLab = [...catalog, m('z-ai/glm-6', 1, 12), m('qwen/qwen5-max', 2, 10)];
+    const oldBig = hotSmallLab.map((model) => (model.author === 'openai' || model.author === 'google' ? { ...model, createdAt: NOW - 120 * DAY } : model));
+    const best = buildPreset('best', { models: oldBig, now: NOW }).map((item) => item.model.author);
+    // fresher frontier labs may swap places, but the four frontier labs come first
+    expect([...best].sort()).toEqual(['anthropic', 'google', 'openai', 'x-ai']);
+    // with five slots, a second-tier lab with a fresh release comes next (DeepSeek and Z.ai are both fresh; default order breaks the tie)
+    expect(buildPreset('best', { models: oldBig, now: NOW }, 5).map((item) => item.model.author)[4]).toBe('deepseek');
+    expect(buildPreset('best', { models: oldBig, now: NOW }, 7).map((item) => item.model.author).slice(4)).toEqual(['deepseek', 'qwen', 'z-ai']);
+  });
+
+  it('never suggests ":" variants, safety classifiers, or premium twins of a plain model', () => {
+    const noisy = [
+      ...catalog,
+      m('anthropic/claude-haiku-5:batch', 1, 2),
+      m('openai/gpt-oss-safeguard-20b', 1, 1, { openWeights: true }),
+      m('meta-llama/llama-guard-5', 1, 1, { openWeights: true }),
+      m('openai/gpt-6.1-pro', 10, 300)
+    ];
+    const ctx2 = { models: noisy, now: NOW };
+    const all = (['best', 'fast', 'open'] as const).flatMap((kind) => buildPreset(kind, ctx2, 6).map((item) => item.model.id));
+    expect(all.some((id) => id.includes(':'))).toBe(false);
+    expect(all.some((id) => /guard/.test(id))).toBe(false);
+    expect(flagshipFor(noisy, 'openai')?.id).toBe('openai/gpt-6.1');
+    // a "-pro" with no plain sibling is still the flagship (Gemini Pro)
+    expect(flagshipFor(noisy, 'google')?.id).toBe('google/gemini-3.6-pro');
   });
 
   it('still works when the catalog has no release dates', () => {
