@@ -15,6 +15,7 @@ export default defineConfig({
     timeout: 120_000
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } }
+    // PW_CHROMIUM_PATH lets sandboxes with a preinstalled Chromium run the suite without a download
+    { name: 'chromium', use: { ...devices['Desktop Chrome'], launchOptions: { executablePath: process.env.PW_CHROMIUM_PATH || undefined } } }
   ]
 });

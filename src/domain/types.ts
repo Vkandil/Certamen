@@ -8,6 +8,10 @@ export interface ModelInfo {
   inputModalities: string[];
   outputModalities: string[];
   author: string;
+  /** When OpenRouter added the model (ms since epoch), if the catalog provides it. */
+  createdAt?: number;
+  /** True when the catalog links the model to published weights (Hugging Face). */
+  openWeights?: boolean;
 }
 
 export interface Contendens {

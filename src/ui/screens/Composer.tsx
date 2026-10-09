@@ -1,11 +1,13 @@
-import { useMemo, useState } from 'react';
-import { estimateCost } from '../../domain/budget';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { estimateCost, estimatePerModel } from '../../domain/budget';
+import { buildPreset, flagships, randomArbiter, recommendedArbiter, sortByNewest, type LineupContext } from '../../domain/lineup';
 import { DEFAULT_CONFIG, type Certamen } from '../../domain/types';
-import type { ModelInfo } from '../../domain/types';
 import { useRunStore } from '../../store/runStore';
 import { useSettingsStore } from '../../store/settingsStore';
+import { loadComposerPrefs, saveComposerPrefs } from '../../store/prefs';
 import { ModelSelector, type SelectedModel } from '../components/ModelSelector';
-import { t } from '../i18n';
+import { formatUsd, labName } from '../format';
+import { t, tf } from '../i18n';
 
 export function Composer({ navigate }: { navigate: (path: string) => void }) {
   const models = useRunStore((state) => state.models);
@@ -14,6 +16,8 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
   const loadModels = useRunStore((state) => state.loadModels);
   const createDraft = useRunStore((state) => state.createDraft);
   const run = useRunStore((state) => state.run);
+  const featured = useRunStore((state) => state.featured);
+  const usage = useRunStore((state) => state.usage);
   const apiKey = useSettingsStore((state) => state.apiKey);
   const credits = useSettingsStore((state) => state.credits);
   const uiLanguage = useSettingsStore((state) => state.uiLanguage);
@@ -28,14 +32,63 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
   const [rounds, setRounds] = useState(1);
   const [arbiterMode, setArbiterMode] = useState<'recommended' | 'random' | 'manual'>('recommended');
   const [manualArbiterId, setManualArbiterId] = useState('');
+  const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const hadSavedRoster = useRef(false);
+  const lineup: LineupContext = useMemo(() => ({ models, featured, usage }), [models, featured, usage]);
+
+  // restore the last roster and settings
+  useEffect(() => {
+    let cancelled = false;
+    void loadComposerPrefs().catch(() => undefined).then((prefs) => {
+      if (cancelled) return;
+      if (prefs?.selected?.length) {
+        hadSavedRoster.current = true;
+        setSelected(prefs.selected);
+      }
+      if (prefs?.language) setLanguage(prefs.language);
+      if (prefs?.budgetCapUsd) setBudgetCapUsd(prefs.budgetCapUsd);
+      if (prefs?.responseWordTarget) setResponseWordTarget(prefs.responseWordTarget);
+      if (typeof prefs?.useWordTarget === 'boolean') setUseWordTarget(prefs.useWordTarget);
+      if (prefs?.maxConcurrency) setMaxConcurrency(prefs.maxConcurrency);
+      if (typeof prefs?.rounds === 'number') setRounds(prefs.rounds);
+      if (prefs?.arbiterMode) setArbiterMode(prefs.arbiterMode);
+      if (prefs?.manualArbiterId) setManualArbiterId(prefs.manualArbiterId);
+      setPrefsLoaded(true);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  // first visit: start from the best lineup of the moment, so typing a question is enough
+  useEffect(() => {
+    if (!prefsLoaded || hadSavedRoster.current || selected.length > 0 || models.length === 0) return;
+    hadSavedRoster.current = true;
+    setSelected(buildPreset('best', lineup).map((item) => ({ modelId: item.model.id, temperature: 0.7 })));
+  }, [lineup, models.length, prefsLoaded, selected.length]);
+
+  useEffect(() => {
+    if (!prefsLoaded) return;
+    void saveComposerPrefs({ selected, language, budgetCapUsd, responseWordTarget, useWordTarget, maxConcurrency, rounds, arbiterMode, manualArbiterId }).catch(() => undefined);
+  }, [arbiterMode, budgetCapUsd, language, manualArbiterId, maxConcurrency, prefsLoaded, responseWordTarget, rounds, selected, useWordTarget]);
 
   const draftEstimate = useMemo(() => {
     if (!text.trim() || selected.length < 2) return undefined;
     return estimateCost(makeEstimateDraft({ text, context, language, selected, budgetCapUsd, responseWordTarget, useWordTarget, maxConcurrency, rounds }), models);
   }, [budgetCapUsd, context, language, maxConcurrency, models, responseWordTarget, rounds, selected, text, useWordTarget]);
-  const recommendedArbiter = useMemo(() => pickRecommendedArbiter(models, selected.map((item) => item.modelId)), [models, selected]);
-  const randomArbiter = useMemo(() => pickRandomArbiter(models, selected.map((item) => item.modelId)), [models, selected]);
-  const selectedArbiterId = (arbiterMode === 'manual' ? manualArbiterId : arbiterMode === 'random' ? randomArbiter?.id : recommendedArbiter?.id) || recommendedArbiter?.id;
+  const costById = useMemo(
+    () => estimatePerModel(makeEstimateDraft({ text, context, language, selected, budgetCapUsd, responseWordTarget, useWordTarget, maxConcurrency, rounds }), models),
+    [budgetCapUsd, context, language, maxConcurrency, models, responseWordTarget, rounds, selected, text, useWordTarget]
+  );
+  const rosterKey = selected.map((item) => item.modelId).join('|');
+  const suggestedArbiter = useMemo(() => recommendedArbiter(rosterKey.split('|'), lineup), [lineup, rosterKey]);
+  const drawnArbiter = useMemo(() => randomArbiter(rosterKey.split('|'), lineup), [lineup, rosterKey]);
+  const arbiterChoices = useMemo(() => {
+    const top = flagships(lineup);
+    return [...top, ...sortByNewest(models).filter((model) => !top.includes(model))];
+  }, [lineup, models]);
+  const selectedArbiterId = (arbiterMode === 'manual' ? manualArbiterId : arbiterMode === 'random' ? drawnArbiter?.id : suggestedArbiter?.id) || suggestedArbiter?.id;
+  const expectedUsd = draftEstimate?.expectedUsd;
+  const lowCredits = Boolean(credits && expectedUsd !== undefined && credits.remainingCredits < expectedUsd * 1.5);
+  const canLaunch = Boolean(apiKey) && !modelsLoading && selected.length >= 2 && Boolean(text.trim());
 
   return (
     <div className="space-y-6 pb-20">
@@ -47,8 +100,30 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
             <h1 className="mt-4 font-display text-4xl font-medium tracking-normal">{t(uiLanguage, 'composer.title')}</h1>
             <label className="mt-8 block text-sm font-medium">
               {t(uiLanguage, 'composer.question')}
-              <textarea className="field mt-3 min-h-48 resize-y text-lg leading-relaxed" value={text} onChange={(event) => setText(event.target.value)} />
+              <textarea
+                className="field mt-3 min-h-48 resize-y text-lg leading-relaxed"
+                value={text}
+                onChange={(event) => setText(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && canLaunch) {
+                    event.preventDefault();
+                    void launch();
+                  }
+                }}
+              />
             </label>
+            {!text.trim() ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
+                <span>{t(uiLanguage, 'composer.examples')}:</span>
+                {(['composer.example1', 'composer.example2', 'composer.example3'] as const).map((key) => (
+                  <button key={key} type="button" className="chip text-xs" onClick={() => setText(t(uiLanguage, key))}>
+                    {t(uiLanguage, key)}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-2 text-xs text-ink-faint">{t(uiLanguage, 'composer.shortcut')}</p>
+            )}
             <label className="mt-6 block text-sm font-medium">
               {t(uiLanguage, 'composer.context')}
               <textarea className="field mt-3 min-h-32 resize-y" value={context} onChange={(event) => setContext(event.target.value)} />
@@ -60,8 +135,8 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
                 <div className="section-title">MODUS</div>
                 <p className="mt-1 text-sm text-ink-muted">{t(uiLanguage, 'composer.settings')}</p>
               </div>
-              <button className="btn-secondary h-9 px-3" onClick={() => void loadModels(apiKey, true)} title="Refresh catalog">
-                Refresh
+              <button className="btn-secondary h-9 px-3" onClick={() => void loadModels(apiKey, true)} title={t(uiLanguage, 'settings.refreshCatalog')}>
+                {t(uiLanguage, 'composer.refresh')}
               </button>
             </div>
             <div className="mt-6 space-y-4">
@@ -90,16 +165,16 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
             <div className="mt-8 border-t border-hairline-strong pt-6">
               <div className="section-title">{t(uiLanguage, 'composer.arbiter')}</div>
               <div className="mt-4 grid gap-px bg-hairline">
-                <ArbiterOption label={`${t(uiLanguage, 'composer.arbiterRecommended')} - ${recommendedArbiter?.name ?? 'n/a'}`} active={arbiterMode === 'recommended'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('recommended')} />
-                <ArbiterOption label={`${t(uiLanguage, 'composer.arbiterRandom')} - ${randomArbiter?.name ?? 'n/a'}`} active={arbiterMode === 'random'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('random')} />
+                <ArbiterOption label={`${t(uiLanguage, 'composer.arbiterRecommended')} - ${suggestedArbiter?.name ?? 'n/a'}`} active={arbiterMode === 'recommended'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('recommended')} />
+                <ArbiterOption label={`${t(uiLanguage, 'composer.arbiterRandom')} - ${drawnArbiter?.name ?? 'n/a'}`} active={arbiterMode === 'random'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('random')} />
                 <ArbiterOption label={t(uiLanguage, 'composer.arbiterManual')} active={arbiterMode === 'manual'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('manual')} />
               </div>
               {arbiterMode === 'manual' ? (
                 <select className="field mt-4" value={manualArbiterId} onChange={(event) => setManualArbiterId(event.target.value)}>
                   <option value="">Choose arbiter</option>
-                  {models.map((model) => (
+                  {arbiterChoices.map((model) => (
                     <option key={model.id} value={model.id}>
-                      {model.name}{model.id === recommendedArbiter?.id ? ` (${t(uiLanguage, 'composer.recommended')})` : ''}
+                      {model.name} · {labName(model.author)}{model.id === suggestedArbiter?.id ? ` (${t(uiLanguage, 'composer.recommended')})` : ''}
                     </option>
                   ))}
                 </select>
@@ -122,16 +197,25 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
                 </div>
               </div>
             ) : null}
-            {modelsError ? <p className="mt-4 border-l-2 border-danger pl-3 text-xs text-danger">{modelsError}</p> : null}
+            {modelsError ? (
+              <p className="mt-4 border-l-2 border-danger pl-3 text-xs text-danger">
+                {t(uiLanguage, 'composer.catalogError')} <span className="font-mono">{modelsError}</span>
+              </p>
+            ) : null}
           </aside>
         </div>
       </section>
 
-      <ModelSelector models={models} selected={selected} onChange={setSelected} language={uiLanguage} />
+      <ModelSelector models={models} selected={selected} onChange={setSelected} language={uiLanguage} featured={featured} usage={usage} costById={costById} />
 
-      <div className="sticky bottom-4 z-10 flex justify-end">
-        <button className="btn-primary h-12 px-6" disabled={!apiKey || modelsLoading || selected.length < 2 || !text.trim()} onClick={() => void launch()}>
-          {modelsLoading ? '...' : t(uiLanguage, 'composer.launch')}
+      <div className="sticky bottom-4 z-10 flex flex-col items-end gap-2">
+        {lowCredits && credits && expectedUsd !== undefined ? (
+          <p className="max-w-md border-l-2 border-danger bg-page px-3 py-2 text-sm text-danger" role="alert">
+            {tf(uiLanguage, 'composer.lowCreditsInline', { balance: credits.remainingCredits.toFixed(2), cost: formatUsd(expectedUsd) })}
+          </p>
+        ) : null}
+        <button className="btn-primary h-12 bg-page px-6" disabled={!canLaunch} onClick={() => void launch()}>
+          {modelsLoading ? '...' : expectedUsd !== undefined ? `${t(uiLanguage, 'composer.launch')} · ≈ $${formatUsd(expectedUsd)}` : t(uiLanguage, 'composer.launch')}
         </button>
       </div>
     </div>
@@ -147,11 +231,6 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
       arbiterModelId: selectedArbiterId,
       config: { budgetCapUsd, responseWordTarget, useWordTarget, maxConcurrency, rounds }
     });
-    const estimate = estimateCost(certamen, models);
-    if (credits && credits.remainingCredits < estimate.expectedUsd * 1.5) {
-      const accepted = window.confirm(t(uiLanguage, 'composer.lowCredits'));
-      if (!accepted) return;
-    }
     navigate(`/certamen/${certamen.id}`);
     await run(apiKey, certamen);
   }
@@ -169,39 +248,6 @@ function ArbiterOption({ label, active, selectedLabel, onClick }: { label: strin
       {active ? <span className="shrink-0 border border-page px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-page">{selectedLabel}</span> : null}
     </button>
   );
-}
-
-function pickRecommendedArbiter(models: ModelInfo[], selectedIds: string[]): ModelInfo | undefined {
-  const selected = new Set(selectedIds);
-  return pickByPriority(models.filter((model) => !selected.has(model.id)), [
-    'anthropic/claude-opus-5-fast',
-    'anthropic/claude-opus-5',
-    'openai/gpt-5.6-sol-pro',
-    'openai/gpt-5.6-sol',
-    'google/gemini-3.6-flash',
-    'moonshotai/kimi-k3'
-  ]) ?? pickByPriority(models, [
-    'anthropic/claude-opus-5-fast',
-    'anthropic/claude-opus-5',
-    'openai/gpt-5.6-sol-pro',
-    'openai/gpt-5.6-sol'
-  ]);
-}
-
-function pickRandomArbiter(models: ModelInfo[], selectedIds: string[]): ModelInfo | undefined {
-  const pool = models.filter((model) => !selectedIds.includes(model.id));
-  const usable = pool.length > 0 ? pool : models;
-  if (usable.length === 0) return undefined;
-  const index = Math.floor(Math.random() * usable.length);
-  return usable[index];
-}
-
-function pickByPriority(models: ModelInfo[], priorities: string[]): ModelInfo | undefined {
-  for (const id of priorities) {
-    const model = models.find((item) => item.id === id);
-    if (model) return model;
-  }
-  return models[0];
 }
 
 function SettingNumber({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max?: number; step: number; onChange: (value: number) => void }) {

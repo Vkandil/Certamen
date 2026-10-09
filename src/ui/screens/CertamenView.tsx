@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { canRetry, retryableSlots } from '../../domain/protocol';
 import { countWords } from '../../domain/tokens';
 import type { Certamen, Responsio } from '../../domain/types';
 import { exportJson, exportMarkdown } from '../../export/markdown';
@@ -7,12 +8,14 @@ import { useRunStore } from '../../store/runStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { SafeMarkdown } from '../components/SafeMarkdown';
 import { StatusPill } from '../components/StatusPill';
-import { t } from '../i18n';
+import { t, tf } from '../i18n';
 
 export function CertamenView() {
   const current = useRunStore((state) => state.current);
   const running = useRunStore((state) => state.running);
   const abort = useRunStore((state) => state.abort);
+  const retry = useRunStore((state) => state.retry);
+  const apiKey = useSettingsStore((state) => state.apiKey);
   const uiLanguage = useSettingsStore((state) => state.uiLanguage);
   const latestBySlot = useMemo(() => {
     const map = new Map<string, Responsio>();
@@ -37,6 +40,11 @@ export function CertamenView() {
           </div>
           <div className="flex flex-wrap gap-3">
             {running ? <button className="btn-danger" onClick={() => abort()}>{t(uiLanguage, 'certamen.stop')}</button> : null}
+            {!running && apiKey && canRetry(current) ? (
+              <button className="btn-primary" onClick={() => void retry(apiKey)}>
+                {retryableSlots(current).length > 0 ? tf(uiLanguage, 'certamen.retry', { n: retryableSlots(current).length }) : t(uiLanguage, 'certamen.retryVerdict')}
+              </button>
+            ) : null}
             {finished ? (
               <>
                 <button className="btn-secondary" onClick={() => download('certamen.md', exportMarkdown(current))}>{t(uiLanguage, 'certamen.markdown')}</button>

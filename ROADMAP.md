@@ -13,6 +13,15 @@ Focus: make the current app feel complete and easy to trust.
 - Keep README, screenshots, privacy notes, and protocol docs in sync with the app.
 - Add more focused tests around exports, redaction, and run recovery.
 
+## Shipped - Model Lineup And Composer UX
+
+- Live lineup from the OpenRouter catalog (release date, price tier, open weights), one lab per slot.
+- Presets: best right now, fast and cheap, open weights, your usual.
+- Upgrade hints for newer releases and models that left the catalog.
+- Weekly `featured-models.json` workflow for pins and excludes.
+- Remembered roster and settings, per-question cost per model, cost on the launch button, inline low-credit warning.
+- Retry failed answers and re-run the arbiter.
+
 ## v0.2 - Local Model Scores, Better Lost-Ideas Detection
 
 Focus: make Certamen learn from the user's own runs without sending analytics.

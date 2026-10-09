@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { BudgetGuard, computeMaxTokens, ensureContextFits, estimateCost } from '../../src/domain/budget';
+import { BudgetGuard, computeMaxTokens, ensureContextFits, estimateCost, estimatePerModel } from '../../src/domain/budget';
 import type { Certamen, ModelInfo } from '../../src/domain/types';
 
 describe('budget', () => {
@@ -18,6 +18,14 @@ describe('budget', () => {
   it('estimates a cost range', () => {
     const estimate = estimateCost(sampleCertamen(), [model]);
     expect(estimate.highUsd).toBeGreaterThan(estimate.lowUsd);
+  });
+
+  it('estimates each contender with its own prices', () => {
+    const certamen = sampleCertamen();
+    const perModel = estimatePerModel(certamen, [model]);
+    expect(perModel[model.id]).toBeGreaterThan(0);
+    const pricier = { ...model, pricing: { promptPerToken: model.pricing.promptPerToken * 10, completionPerToken: model.pricing.completionPerToken * 10 } };
+    expect(estimatePerModel(certamen, [pricier])[model.id]).toBeCloseTo(perModel[model.id]! * 10);
   });
 
   it('tracks hard cap before starting new calls', () => {

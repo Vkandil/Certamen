@@ -14,10 +14,14 @@ Stored locally in the browser's IndexedDB:
 - run history;
 - questions and optional context;
 - selected model ids and per-model settings;
+- your last roster and composer settings;
+- a per-model usage count (how many runs used each model), used only to suggest "Your usual" models;
 - prompt snapshots;
 - model responses, parsed sections, status, costs, timestamps, and generation ids.
 
 Certamen does not use `localStorage` for the API key, cookies, analytics, tracking pixels, or external fonts.
+
+The app also fetches `featured-models.json` from its own origin (the same GitHub Pages site that serves the app). It is a static file; no data is sent with that request.
 
 You can clear local application data from the Settings page.
 

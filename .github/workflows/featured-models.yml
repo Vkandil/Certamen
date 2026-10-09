@@ -1,0 +1,41 @@
+name: Refresh featured models
+
+# Weekly: recompute the suggested lineups from the live OpenRouter catalog and open a pull
+# request when they change. Review it, add pins/excludes by hand if needed, then merge.
+# Requires Settings > Actions > General > "Allow GitHub Actions to create and approve pull requests".
+on:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node --experimental-strip-types scripts/update-featured.mjs
+      - name: Open a pull request if the lineup changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- public/featured-models.json; then
+            echo "Lineup unchanged."
+            exit 0
+          fi
+          branch="featured-models/$(date -u +%Y-%m-%d)"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$branch"
+          git add public/featured-models.json
+          git commit -m "chore: refresh featured models"
+          git push -u origin "$branch"
+          gh pr create --base main --head "$branch" \
+            --title "Refresh featured models ($(date -u +%Y-%m-%d))" \
+            --body "Weekly lineup recomputed from the OpenRouter catalog. \`snapshot\` shows what the app suggests; edit \`pin\` / \`exclude\` / \`labs\` to override before merging."

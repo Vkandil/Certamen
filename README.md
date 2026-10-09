@@ -92,7 +92,10 @@ Start from recommended model families, then tune each slot. You can mix frontier
 ## Features
 
 - Local-first React app with no backend.
-- OpenRouter model catalog loaded live.
+- OpenRouter model catalog loaded live, with the newest flagship of each lab suggested automatically (see [Choosing Models](#choosing-models)).
+- One-click rosters: best right now, fast and cheap, open weights, your usual models.
+- Upgrade hints when a newer release of a model in your roster appears.
+- Retry only the failed answers of a run, then re-run the arbiter.
 - Multi-language UI and answer language selection.
 - Per-model temperature and optional role/stance.
 - Recommended, random, or manual arbiter selection.
@@ -102,6 +105,18 @@ Start from recommended model families, then tune each slot. You can mix frontier
 - Markdown, JSON, and permalink export.
 - Prompt snapshots stored for auditability.
 - Strict CSP and no external fonts or analytics.
+
+## Choosing Models
+
+New models ship every few weeks, so Certamen does not hard-code model ids. It reads the live OpenRouter catalog and decides from the data:
+
+- **Release date** (`created` in the catalog): the newest release of a lab is usually the one people want to try.
+- **Price tier**: within a lab, the priciest recent model is treated as its flagship. This separates "Opus" from "Haiku" without parsing names.
+- **One lab per slot**: models from different labs disagree for real, which is the point of a debate. Labs that shipped a flagship in the last 45 days move up.
+- **Your habits**: the models you run most often feed the "Your usual" preset. These counts stay in your browser.
+- **Weekly overlay**: `public/featured-models.json` can pin or exclude models and reorder labs. The `Refresh featured models` workflow recomputes it every Monday and opens a pull request when the lineup changes. It only needs "Allow GitHub Actions to create and approve pull requests" in the repository settings.
+
+The composer starts with the best lineup of the moment, shows why each model is there and what it should cost for your question, and offers three swaps per slot. The recommended arbiter is the strongest flagship that is not already debating.
 
 ## Quick Start
 
@@ -146,6 +161,7 @@ Each run can store:
 
 - the question and optional context;
 - selected model ids and settings;
+- your last roster and composer settings, and how often you used each model (for the "Your usual" preset);
 - prompt snapshots;
 - generated answers and parsed sections;
 - status, costs, timestamps, and generation ids.

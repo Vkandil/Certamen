@@ -61,6 +61,16 @@ select {
   @apply btn hover:bg-ink hover:text-page;
 }
 
+/* one-click choices (model presets, example questions); pressed = current choice */
+.chip {
+  @apply inline-flex min-h-9 items-center border border-hairline-strong bg-transparent px-3 py-1 text-sm text-ink transition hover:bg-ink hover:text-page disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-transparent disabled:hover:text-ink;
+  border-radius: var(--radius);
+}
+
+.chip[aria-pressed='true'] {
+  @apply border-ink bg-ink text-page;
+}
+
 .btn-danger {
   @apply btn border-danger text-danger hover:bg-danger hover:text-page;
 }
