@@ -5,6 +5,7 @@ import { DEFAULT_CONFIG, type Certamen } from '../../domain/types';
 import { useRunStore } from '../../store/runStore';
 import { useSettingsStore } from '../../store/settingsStore';
 import { loadComposerPrefs, saveComposerPrefs } from '../../store/prefs';
+import { AutoTextarea } from '../components/AutoTextarea';
 import { ModelSelector, type SelectedModel } from '../components/ModelSelector';
 import { formatUsd, labName } from '../format';
 import { t, tf } from '../i18n';
@@ -33,6 +34,7 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
   const [arbiterMode, setArbiterMode] = useState<'recommended' | 'random' | 'manual'>('recommended');
   const [manualArbiterId, setManualArbiterId] = useState('');
   const [prefsLoaded, setPrefsLoaded] = useState(false);
+  const [showContext, setShowContext] = useState(false);
   const hadSavedRoster = useRef(false);
   const lineup: LineupContext = useMemo(() => ({ models, featured, usage }), [models, featured, usage]);
 
@@ -87,128 +89,155 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
   }, [lineup, models]);
   const selectedArbiterId = (arbiterMode === 'manual' ? manualArbiterId : arbiterMode === 'random' ? drawnArbiter?.id : suggestedArbiter?.id) || suggestedArbiter?.id;
   const expectedUsd = draftEstimate?.expectedUsd;
+  const arbiterName = models.find((model) => model.id === selectedArbiterId)?.name ?? selectedArbiterId;
   const lowCredits = Boolean(credits && expectedUsd !== undefined && credits.remainingCredits < expectedUsd * 1.5);
   const canLaunch = Boolean(apiKey) && !modelsLoading && selected.length >= 2 && Boolean(text.trim());
 
   return (
     <div className="space-y-6 pb-20">
-      <section className="surface overflow-hidden">
-        <div className="grid gap-px bg-hairline lg:grid-cols-[minmax(0,1fr)_360px]">
-          <div className={`bg-surface p-6 ${text ? '' : 'baseline-grid'}`}>
-            <div className="section-title">QUAESTIO</div>
-            <p className="mt-1 text-sm text-ink-muted">the question</p>
-            <h1 className="mt-4 font-display text-4xl font-medium tracking-normal">{t(uiLanguage, 'composer.title')}</h1>
-            <label className="mt-8 block text-sm font-medium">
-              {t(uiLanguage, 'composer.question')}
-              <textarea
-                className="field mt-3 min-h-48 resize-y text-lg leading-relaxed"
-                value={text}
-                onChange={(event) => setText(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && canLaunch) {
-                    event.preventDefault();
-                    void launch();
-                  }
-                }}
-              />
-            </label>
-            {!text.trim() ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
-                <span>{t(uiLanguage, 'composer.examples')}:</span>
-                {(['composer.example1', 'composer.example2', 'composer.example3'] as const).map((key) => (
-                  <button key={key} type="button" className="chip text-xs" onClick={() => setText(t(uiLanguage, key))}>
-                    {t(uiLanguage, key)}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <p className="mt-2 text-xs text-ink-faint">{t(uiLanguage, 'composer.shortcut')}</p>
-            )}
-            <label className="mt-6 block text-sm font-medium">
-              {t(uiLanguage, 'composer.context')}
-              <textarea className="field mt-3 min-h-32 resize-y" value={context} onChange={(event) => setContext(event.target.value)} />
-            </label>
-          </div>
-          <aside className="bg-raised p-6">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <div className="section-title">MODUS</div>
-                <p className="mt-1 text-sm text-ink-muted">{t(uiLanguage, 'composer.settings')}</p>
-              </div>
-              <button className="btn-secondary h-9 px-3" onClick={() => void loadModels(apiKey, true)} title={t(uiLanguage, 'settings.refreshCatalog')}>
-                {t(uiLanguage, 'composer.refresh')}
+      <section className={`surface p-6 ${text ? '' : 'baseline-grid'}`}>
+        <div className="section-title">QUAESTIO</div>
+        <h1 className="mt-2 font-display text-3xl font-medium tracking-normal">{t(uiLanguage, 'composer.title')}</h1>
+        <label className="mt-5 block text-sm font-medium">
+          {t(uiLanguage, 'composer.question')}
+          <AutoTextarea
+            className="field mt-2 text-lg leading-relaxed"
+            minRows={2}
+            maxHeight={420}
+            placeholder={t(uiLanguage, 'composer.questionPlaceholder')}
+            value={text}
+            onChange={(event) => setText(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' && (event.metaKey || event.ctrlKey) && canLaunch) {
+                event.preventDefault();
+                void launch();
+              }
+            }}
+          />
+        </label>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink-muted">
+          {!text.trim() ? (
+            <>
+              <span>{t(uiLanguage, 'composer.examples')}:</span>
+              {(['composer.example1', 'composer.example2', 'composer.example3'] as const).map((key) => (
+                <button key={key} type="button" className="chip text-xs" onClick={() => setText(t(uiLanguage, key))}>
+                  {t(uiLanguage, key)}
+                </button>
+              ))}
+            </>
+          ) : (
+            <span className="text-ink-faint">{t(uiLanguage, 'composer.shortcut')}</span>
+          )}
+        </div>
+        {showContext ? (
+          <div className="mt-5 text-sm font-medium">
+            <div className="flex items-center justify-between gap-3">
+              <label htmlFor="certamen-context">{t(uiLanguage, 'composer.context')}</label>
+              <button type="button" className="text-xs font-normal text-ink-muted underline-offset-2 hover:underline" onClick={() => { setContext(''); setShowContext(false); }}>
+                {t(uiLanguage, 'composer.removeContext')}
               </button>
             </div>
-            <div className="mt-6 space-y-4">
-              <label className="block text-xs text-ink-muted">
-                {t(uiLanguage, 'composer.answerLanguage')}
-                <select className="field mt-1" value={language} onChange={(event) => setLanguage(event.target.value)}>
-                  <option value="auto">{t(uiLanguage, 'composer.auto')}</option>
-                  <option value="English">{t(uiLanguage, 'composer.english')}</option>
-                  <option value="French">{t(uiLanguage, 'composer.french')}</option>
-                  <option value="Spanish">{t(uiLanguage, 'composer.spanish')}</option>
-                  <option value="German">{t(uiLanguage, 'composer.german')}</option>
-                </select>
-              </label>
-              <SettingNumber label={t(uiLanguage, 'composer.rounds')} value={rounds} min={0} max={1} step={1} onChange={setRounds} />
-              <label className="flex items-center justify-between gap-4 border-b border-hairline pb-3 text-xs text-ink-muted">
-                <span>
-                  <span className="block text-sm text-ink">{t(uiLanguage, 'composer.useWordTarget')}</span>
-                  <span>{useWordTarget ? t(uiLanguage, 'composer.words') : t(uiLanguage, 'composer.letModelDecide')}</span>
-                </span>
-                <input className="h-4 w-4 accent-current" type="checkbox" checked={useWordTarget} onChange={(event) => setUseWordTarget(event.target.checked)} />
-              </label>
-              {useWordTarget ? <SettingNumber label={t(uiLanguage, 'composer.words')} value={responseWordTarget} min={200} max={1500} step={50} onChange={setResponseWordTarget} /> : null}
-              <SettingNumber label={t(uiLanguage, 'composer.budget')} value={budgetCapUsd} min={0.01} step={0.05} onChange={setBudgetCapUsd} />
-              <SettingNumber label={t(uiLanguage, 'composer.concurrency')} value={maxConcurrency} min={1} max={8} step={1} onChange={setMaxConcurrency} />
-            </div>
-            <div className="mt-8 border-t border-hairline-strong pt-6">
-              <div className="section-title">{t(uiLanguage, 'composer.arbiter')}</div>
-              <div className="mt-4 grid gap-px bg-hairline">
-                <ArbiterOption label={`${t(uiLanguage, 'composer.arbiterRecommended')} - ${suggestedArbiter?.name ?? 'n/a'}`} active={arbiterMode === 'recommended'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('recommended')} />
-                <ArbiterOption label={`${t(uiLanguage, 'composer.arbiterRandom')} - ${drawnArbiter?.name ?? 'n/a'}`} active={arbiterMode === 'random'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('random')} />
-                <ArbiterOption label={t(uiLanguage, 'composer.arbiterManual')} active={arbiterMode === 'manual'} selectedLabel={t(uiLanguage, 'composer.selected')} onClick={() => setArbiterMode('manual')} />
-              </div>
-              {arbiterMode === 'manual' ? (
-                <select className="field mt-4" value={manualArbiterId} onChange={(event) => setManualArbiterId(event.target.value)}>
-                  <option value="">Choose arbiter</option>
-                  {arbiterChoices.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name} · {labName(model.author)}{model.id === suggestedArbiter?.id ? ` (${t(uiLanguage, 'composer.recommended')})` : ''}
-                    </option>
-                  ))}
-                </select>
-              ) : null}
-              {selectedArbiterId ? <p className="mt-3 font-mono text-xs text-ink-muted">{selectedArbiterId}</p> : null}
-            </div>
-            {draftEstimate ? (
-              <div className="mt-8 grid grid-cols-2 gap-px bg-hairline text-sm">
-                <div className="metric col-span-2">
-                  <div className="section-title">{t(uiLanguage, 'composer.estimate')}</div>
-                  <div className="numeric mt-2 text-xl font-medium">{draftEstimate.lowUsd.toFixed(4)} - {draftEstimate.highUsd.toFixed(4)} USD</div>
-                </div>
-                <div className="metric">
-                  <div className="text-xs text-ink-muted">Input</div>
-                  <div className="numeric text-right font-medium">{draftEstimate.inputTokens.toLocaleString()}</div>
-                </div>
-                <div className="metric">
-                  <div className="text-xs text-ink-muted">Output</div>
-                  <div className="numeric text-right font-medium">{draftEstimate.outputTokens.toLocaleString()}</div>
-                </div>
-              </div>
-            ) : null}
-            {modelsError ? (
-              <p className="mt-4 border-l-2 border-danger pl-3 text-xs text-danger">
-                {t(uiLanguage, 'composer.catalogError')} <span className="font-mono">{modelsError}</span>
-              </p>
-            ) : null}
-          </aside>
-        </div>
+            <AutoTextarea id="certamen-context" className="field mt-2" minRows={2} maxHeight={320} placeholder={t(uiLanguage, 'composer.contextPlaceholder')} value={context} onChange={(event) => setContext(event.target.value)} autoFocus={!context} />
+          </div>
+        ) : (
+          <button type="button" className="mt-4 text-sm text-ink-muted underline-offset-2 hover:text-ink hover:underline" onClick={() => setShowContext(true)}>
+            {t(uiLanguage, 'composer.addContext')}
+          </button>
+        )}
       </section>
 
       <ModelSelector models={models} selected={selected} onChange={setSelected} language={uiLanguage} featured={featured} usage={usage} costById={costById} />
 
+
+      <section className="surface p-6">
+        <div className="section-title">MODUS</div>
+        <div className="mt-4 grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+          <label className="flex items-start justify-between gap-3 text-sm">
+            <span>
+              <span className="block font-medium">{t(uiLanguage, 'composer.debateRound')}</span>
+              <span className="mt-1 block text-xs text-ink-muted">{t(uiLanguage, 'composer.debateRoundHint')}</span>
+            </span>
+            <input className="mt-1 h-4 w-4 shrink-0 accent-current" type="checkbox" checked={rounds > 0} onChange={(event) => setRounds(event.target.checked ? 1 : 0)} />
+          </label>
+          <label className="block text-sm">
+            <span className="font-medium">{t(uiLanguage, 'composer.answerLength')}</span>
+            <select className="field mt-1" value={lengthChoice(useWordTarget, responseWordTarget)} onChange={(event) => applyLength(event.target.value as LengthChoice)}>
+              <option value="short">{t(uiLanguage, 'composer.lengthShort')}</option>
+              <option value="standard">{t(uiLanguage, 'composer.lengthStandard')}</option>
+              <option value="long">{t(uiLanguage, 'composer.lengthLong')}</option>
+              <option value="free">{t(uiLanguage, 'composer.lengthFree')}</option>
+            </select>
+          </label>
+          <label className="block text-sm">
+            <span className="font-medium">{t(uiLanguage, 'composer.budget')}</span>
+            <input className="field mt-1 numeric" type="number" min={0.01} step={0.05} value={budgetCapUsd} onChange={(event) => setBudgetCapUsd(Number(event.target.value))} />
+            <span className="mt-1 block text-xs text-ink-muted">
+              {draftEstimate ? tf(uiLanguage, 'composer.estimateRange', { low: formatUsd(draftEstimate.lowUsd), high: formatUsd(draftEstimate.highUsd) }) : t(uiLanguage, 'composer.budgetHint')}
+            </span>
+            {draftEstimate && draftEstimate.highUsd > budgetCapUsd ? (
+              <span className="mt-1 block text-xs text-danger">
+                {t(uiLanguage, 'composer.budgetTooLow')}{' '}
+                <button type="button" className="font-medium text-ink underline underline-offset-2" onClick={() => setBudgetCapUsd(suggestedBudget(draftEstimate.highUsd))}>
+                  {tf(uiLanguage, 'composer.raiseBudget', { amount: suggestedBudget(draftEstimate.highUsd).toFixed(2) })}
+                </button>
+              </span>
+            ) : null}
+          </label>
+          <div className="text-sm">
+            <span className="font-medium">{t(uiLanguage, 'composer.arbiter')}</span>
+            <div className="mt-1 truncate" title={selectedArbiterId}>{arbiterName ?? 'n/a'}</div>
+            <div className="mt-2 flex gap-px bg-hairline-strong p-px" role="group" aria-label={t(uiLanguage, 'composer.arbiter')}>
+              {(['recommended', 'random', 'manual'] as const).map((mode) => (
+                <button key={mode} type="button" className="chip min-h-8 flex-1 justify-center border-0 px-2 text-xs" aria-pressed={arbiterMode === mode} onClick={() => setArbiterMode(mode)}>
+                  {t(uiLanguage, mode === 'recommended' ? 'composer.arbiterRecommended' : mode === 'random' ? 'composer.arbiterRandom' : 'composer.arbiterManual')}
+                </button>
+              ))}
+            </div>
+            {arbiterMode === 'manual' ? (
+              <select className="field mt-2" aria-label={t(uiLanguage, 'composer.chooseArbiter')} value={manualArbiterId} onChange={(event) => setManualArbiterId(event.target.value)}>
+                <option value="">{t(uiLanguage, 'composer.chooseArbiter')}</option>
+                {arbiterChoices.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name} · {labName(model.author)}{model.id === suggestedArbiter?.id ? ` (${t(uiLanguage, 'composer.recommended')})` : ''}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <span className="mt-1 block text-xs text-ink-muted">{t(uiLanguage, 'composer.arbiterHint')}</span>
+            )}
+          </div>
+        </div>
+        <details className="mt-6 border-t border-hairline pt-4 text-sm">
+          <summary className="cursor-pointer select-none text-ink-muted">{t(uiLanguage, 'composer.moreSettings')}</summary>
+          <div className="mt-4 grid gap-6 md:grid-cols-3">
+            <label className="block text-sm">
+              {t(uiLanguage, 'composer.answerLanguage')}
+              <select className="field mt-1" value={language} onChange={(event) => setLanguage(event.target.value)}>
+                <option value="auto">{t(uiLanguage, 'composer.auto')}</option>
+                <option value="English">{t(uiLanguage, 'composer.english')}</option>
+                <option value="French">{t(uiLanguage, 'composer.french')}</option>
+                <option value="Spanish">{t(uiLanguage, 'composer.spanish')}</option>
+                <option value="German">{t(uiLanguage, 'composer.german')}</option>
+              </select>
+            </label>
+            <SettingNumber label={t(uiLanguage, 'composer.concurrency')} value={maxConcurrency} min={1} max={8} step={1} onChange={setMaxConcurrency} />
+            <div className="text-sm">
+              {t(uiLanguage, 'settings.catalogData')}
+              <button type="button" className="btn-secondary mt-2 h-9 px-3" onClick={() => void loadModels(apiKey, true)}>
+                {t(uiLanguage, 'composer.refresh')}
+              </button>
+            </div>
+          </div>
+        </details>
+        {modelsError ? (
+          <p className="mt-4 border-l-2 border-danger pl-3 text-xs text-danger">
+            {t(uiLanguage, 'composer.catalogError')} <span className="font-mono">{modelsError}</span>
+          </p>
+        ) : null}
+      </section>
+
       <div className="sticky bottom-4 z-10 flex flex-col items-end gap-2">
+
         {lowCredits && credits && expectedUsd !== undefined ? (
           <p className="max-w-md border-l-2 border-danger bg-page px-3 py-2 text-sm text-danger" role="alert">
             {tf(uiLanguage, 'composer.lowCreditsInline', { balance: credits.remainingCredits.toFixed(2), cost: formatUsd(expectedUsd) })}
@@ -220,6 +249,11 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
       </div>
     </div>
   );
+
+  function applyLength(choice: LengthChoice) {
+    setUseWordTarget(choice !== 'free');
+    if (choice !== 'free') setResponseWordTarget(LENGTH_WORDS[choice]);
+  }
 
   async function launch() {
     if (!apiKey) return;
@@ -236,18 +270,19 @@ export function Composer({ navigate }: { navigate: (path: string) => void }) {
   }
 }
 
-function ArbiterOption({ label, active, selectedLabel, onClick }: { label: string; active: boolean; selectedLabel: string; onClick: () => void }) {
-  return (
-    <button
-      className={`flex min-h-12 w-full items-center justify-between gap-3 px-3 py-2 text-left text-sm transition ${active ? 'bg-ink font-medium text-page' : 'bg-surface text-ink hover:bg-raised'}`}
-      type="button"
-      aria-pressed={active}
-      onClick={onClick}
-    >
-      <span className="min-w-0 leading-snug">{label}</span>
-      {active ? <span className="shrink-0 border border-page px-2 py-0.5 text-[10px] uppercase tracking-[0.12em] text-page">{selectedLabel}</span> : null}
-    </button>
-  );
+type LengthChoice = 'short' | 'standard' | 'long' | 'free';
+const LENGTH_WORDS: Record<Exclude<LengthChoice, 'free'>, number> = { short: 300, standard: 600, long: 1000 };
+
+/** Budget that covers the high estimate with a margin, rounded up to $0.50. */
+function suggestedBudget(highUsd: number): number {
+  return Math.max(0.5, Math.ceil((highUsd * 1.2) / 0.5) * 0.5);
+}
+
+function lengthChoice(useWordTarget: boolean, words: number): LengthChoice {
+  if (!useWordTarget) return 'free';
+  if (words <= 400) return 'short';
+  if (words <= 800) return 'standard';
+  return 'long';
 }
 
 function SettingNumber({ label, value, min, max, step, onChange }: { label: string; value: number; min: number; max?: number; step: number; onChange: (value: number) => void }) {

@@ -113,11 +113,12 @@ New models ship every few weeks, so Certamen does not hard-code model ids. It re
 
 - **Release date** (`created` in the catalog): the newest release of a lab is usually the one people want to try.
 - **Price tier**: within a lab, the priciest recent model is treated as its flagship. This separates "Opus" from "Haiku" without parsing names.
-- **One lab per slot**: models from different labs disagree for real, which is the point of a debate. Labs that shipped a flagship in the last 45 days move up.
+- **One lab per slot**: models from different labs disagree for real, which is the point of a debate. Anthropic, OpenAI, Google and xAI come first; within each tier, labs that shipped a flagship in the last 45 days move up.
+- **No duplicates or non-debaters**: `:` variants (`:free`, `:batch`…), router aliases, safety classifiers (`*guard*`) and premium twins (`x-pro` / `x-fast` when plain `x` exists) are never suggested.
 - **Your habits**: the models you run most often feed the "Your usual" preset. These counts stay in your browser.
 - **Weekly overlay**: `public/featured-models.json` can pin or exclude models and reorder labs. The `Refresh featured models` workflow recomputes it every Monday and opens a pull request when the lineup changes. It only needs "Allow GitHub Actions to create and approve pull requests" in the repository settings.
 
-The composer starts with the best lineup of the moment, shows why each model is there and what it should cost for your question, and offers three swaps per slot. The recommended arbiter is the strongest flagship that is not already debating.
+The composer starts with the best lineup of the moment, shows why each model is there and what it should cost for your question, and offers three swaps per slot. The recommended arbiter is the strongest frontier model that is not already debating (for example Opus when Fable debates). The weekly pull request lists each lab's flagship under `snapshot.flagships`, so a wrong pick is easy to spot.
 
 ## Quick Start
 
