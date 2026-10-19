@@ -1,26 +1,38 @@
 {
-  "updatedAt": "2026-10-09",
+  "updatedAt": "2026-10-19",
   "pin": [],
   "exclude": [],
   "labs": [],
   "snapshot": {
     "best": [
-      "anthropic/claude-fable-5.1",
+      "openai/gpt-6-astra",
+      "google/gemini-4-argon",
       "x-ai/grok-4.7",
-      "qwen/qwen3.8-max-prime",
-      "z-ai/glm-5.3-prime"
+      "anthropic/claude-fable-5.1"
     ],
     "fast": [
-      "anthropic/claude-haiku-5.5:batch",
+      "openai/gpt-6-luna-pro",
+      "google/gemini-3.7-flash",
       "x-ai/grok-build-0.1",
-      "qwen/qwen3.8-omni-flash",
-      "z-ai/glm-5.3-flash:batch"
+      "anthropic/claude-haiku-5.5"
     ],
     "open": [
+      "openai/gpt-oss-120b",
+      "google/gemma-4-31b-it",
       "qwen/qwen3.8-2.4t-a95b",
-      "z-ai/glm-5.2",
-      "openai/gpt-oss-safeguard-20b",
-      "google/gemma-4-31b-it"
-    ]
+      "z-ai/glm-5.1"
+    ],
+    "flagships": {
+      "anthropic": "anthropic/claude-fable-5.1",
+      "openai": "openai/gpt-6-astra",
+      "google": "google/gemini-4-argon",
+      "x-ai": "x-ai/grok-4.7",
+      "deepseek": "deepseek/deepseek-v4-pro-0813",
+      "moonshotai": "moonshotai/kimi-k3",
+      "qwen": "qwen/qwen3.8-max-prime",
+      "mistralai": "mistralai/mistral-medium-3-5",
+      "z-ai": "z-ai/glm-5.3-prime",
+      "meta-llama": "meta-llama/llama-4-maverick"
+    }
   }
 }
