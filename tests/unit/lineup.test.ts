@@ -89,6 +89,20 @@ describe('lineup', () => {
     expect(best.map((item) => item.model.id)).not.toContain('openai/gpt-6.1');
   });
 
+  it('keeps code specialists and premium twins out of the fast preset', () => {
+    const pool = [
+      m('x-ai/grok-4.7', 10, 20),
+      m('x-ai/grok-build-0.1', 5, 0.5),
+      m('x-ai/grok-4.7-mini', 12, 1),
+      m('openai/gpt-6-luna', 20, 3),
+      m('openai/gpt-6-luna-pro', 4, 0.2)
+    ];
+    const fast = buildPreset('fast', { models: pool, now: NOW }, 4).map((item) => item.model.id);
+    expect(fast).not.toContain('x-ai/grok-build-0.1');
+    expect(fast).not.toContain('openai/gpt-6-luna-pro');
+    expect(fast).toContain('openai/gpt-6-luna');
+  });
+
   it('builds fast and open presets', () => {
     const fast = buildPreset('fast', ctx).map((item) => item.model.id);
     expect(fast).toContain('openai/gpt-6.1-mini');

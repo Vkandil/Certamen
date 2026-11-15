@@ -57,6 +57,8 @@ const VARIANT = /(^|[-_ .:/])(mini|nano|lite|tiny|micro|small|haiku|embed(ding)?
 const CLASSIFIER = /guard|moderat|classif/i;
 /** Premium/priority SKUs of a model that also exists without the suffix (gpt-6.1-pro, claude-opus-5-fast). */
 const PREMIUM_SUFFIX = /-(pro|fast|max|turbo|high)$/i;
+/** Code specialists (grok-build, codex, qwen-coder) are poor generalist debaters. */
+const CODE_SPECIALIST = /(^|[-_ .])(build|code|coder|codex)([-_ .\d]|$)/i;
 
 export function totalPricePerMillion(model: ModelInfo): number {
   return (model.pricing.promptPerToken + model.pricing.completionPerToken) * 1_000_000;
@@ -91,6 +93,10 @@ function hasPlainSibling(model: ModelInfo, pool: ModelInfo[]): boolean {
   return pool.some((other) => other.id === plain);
 }
 
+export function isCodeSpecialist(model: ModelInfo): boolean {
+  return CODE_SPECIALIST.test(model.id.split('/')[1] ?? model.id);
+}
+
 export function isVariant(model: ModelInfo): boolean {
   return VARIANT.test(model.id.split('/')[1] ?? model.id);
 }
@@ -115,7 +121,8 @@ export function flagshipFor(models: ModelInfo[], lab: string, featured?: Feature
 
 /** A cheap, recent model of a lab: cheapest among the lab's five newest releases. */
 export function fastFor(models: ModelInfo[], lab: string, featured?: FeaturedOverlay): ModelInfo | undefined {
-  const pool = models.filter((model) => model.author === lab && suggestible(model, featured));
+  const labModels = models.filter((model) => model.author === lab && suggestible(model, featured) && !isCodeSpecialist(model));
+  const pool = labModels.filter((model) => !hasPlainSibling(model, labModels));
   if (pool.length === 0) return undefined;
   const recent = [...pool].sort(byNewest).slice(0, 5);
   return recent.sort((a, b) => totalPricePerMillion(a) - totalPricePerMillion(b) || byNewest(a, b))[0];
@@ -123,7 +130,7 @@ export function fastFor(models: ModelInfo[], lab: string, featured?: FeaturedOve
 
 /** Best open-weights model of a lab. */
 export function openFor(models: ModelInfo[], lab: string, featured?: FeaturedOverlay): ModelInfo | undefined {
-  return flagshipFor(models.filter((model) => model.openWeights), lab, featured);
+  return flagshipFor(models.filter((model) => model.openWeights && !isCodeSpecialist(model)), lab, featured);
 }
 
 function pinnedModels(ctx: LineupContext): ModelInfo[] {
