@@ -1,20 +1,20 @@
 {
-  "updatedAt": "2026-11-09",
+  "updatedAt": "2026-11-16",
   "pin": [],
   "exclude": [],
   "labs": [],
   "snapshot": {
     "best": [
-      "google/gemini-4-argon",
+      "google/gemini-4-carbon",
       "anthropic/claude-fable-5.1",
       "openai/gpt-6-astra",
       "x-ai/grok-4.7"
     ],
     "fast": [
-      "google/gemini-3.8-flash",
+      "google/gemini-4-hydrogen",
       "anthropic/claude-haiku-5.5",
-      "openai/gpt-6-luna-pro",
-      "x-ai/grok-build-0.1"
+      "openai/gpt-6-luna",
+      "x-ai/grok-4.3"
     ],
     "open": [
       "google/gemma-4-31b-it",
@@ -25,7 +25,7 @@
     "flagships": {
       "anthropic": "anthropic/claude-fable-5.1",
       "openai": "openai/gpt-6-astra",
-      "google": "google/gemini-4-argon",
+      "google": "google/gemini-4-carbon",
       "x-ai": "x-ai/grok-4.7",
       "deepseek": "deepseek/deepseek-v4-pro-0813",
       "moonshotai": "moonshotai/kimi-k3",
